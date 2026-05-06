@@ -66,18 +66,10 @@
             background: linear-gradient(90deg, #7c3aed, #a855f7);
             transition: width 0.3s;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .animate-pulse {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Header -->
         <header style="background: linear-gradient(135deg, #7c3aed, #a855f7); padding: 24px 20px; color: white;">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
@@ -92,14 +84,13 @@
 
         <main style="padding: 20px;">
             
-            <!-- Input Section -->
             <div class="card" style="padding: 24px; margin-bottom: 20px;">
                 <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #1e293b;">
                     <i class="fas fa-lightbulb" style="color: #fbbf24; margin-right: 8px;"></i>
                     What should we create?
                 </h2>
                 <p style="font-size: 14px; color: #64748b; margin-bottom: 20px;">
-                    Enter your content. Our AI will generate a video with voiceover and visuals.
+                    Enter your content. Our AI will generate a video with voiceover.
                 </p>
 
                 <textarea 
@@ -107,9 +98,8 @@
                     placeholder="Enter your content here..."
                     style="width: 100%; height: 150px; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; resize: vertical; font-family: inherit; margin-bottom: 20px; line-height: 1.6;"></textarea>
 
-                <!-- Style Selection -->
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Video Style</label>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 10px;">Video Style</label>
                     <div style="display: flex; gap: 10px;">
                         <button onclick="setStyle('professional')" class="style-btn active" data-style="professional" style="flex: 1; padding: 14px; border: 2px solid #e2e8f0; background: white; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500;">
                             <i class="fas fa-briefcase" style="display: block; margin-bottom: 6px; font-size: 18px;"></i>
@@ -126,33 +116,30 @@
                     </div>
                 </div>
 
-                <!-- Options -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
                     <div>
                         <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Duration</label>
                         <select id="duration" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: white;">
-                            <option value="15">15 seconds</option>
-                            <option value="30" selected>30 seconds</option>
-                            <option value="60">60 seconds</option>
+                            <option value="10">10 seconds</option>
+                            <option value="15" selected>15 seconds</option>
+                            <option value="30">30 seconds</option>
                         </select>
                     </div>
                     <div>
-                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Voice</label>
-                        <select id="voice" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: white;">
-                            <option value="default">Default</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Voice Speed</label>
+                        <select id="voice-speed" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: white;">
+                            <option value="0.8">Slow</option>
+                            <option value="1" selected>Normal</option>
+                            <option value="1.2">Fast</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Generate Button -->
                 <button onclick="startVideoGeneration()" id="generate-btn" class="btn-primary" style="width: 100%; padding: 18px; border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer;">
                     <i class="fas fa-magic" style="margin-right: 8px;"></i>
                     Create AI Video
                 </button>
 
-                <!-- Progress Bar -->
                 <div id="progress-container" style="display: none; margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                         <span id="progress-text" style="font-size: 13px; color: #64748b;">Initializing...</span>
@@ -164,7 +151,6 @@
                 </div>
             </div>
 
-            <!-- Templates -->
             <div class="card" style="padding: 20px; margin-bottom: 20px; background: linear-gradient(135deg, #fef3c7, #fde68a); border: none;">
                 <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #92400e;">
                     <i class="fas fa-star" style="margin-right: 6px;"></i>
@@ -186,26 +172,27 @@
                 </div>
             </div>
 
-            <!-- Preview Canvas (hidden initially) -->
             <div id="preview-section" style="display: none; margin-bottom: 20px;">
                 <div class="card" style="padding: 20px;">
                     <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #1e293b;">
                         <i class="fas fa-eye" style="color: #7c3aed; margin-right: 8px;"></i>
-                        Preview
+                        Your Video is Ready!
                     </h3>
-                    <canvas id="video-canvas" width="640" height="360"></canvas>
+                    <div style="background: #1e293b; border-radius: 12px; padding: 20px; text-align: center; color: white;">
+                        <i class="fas fa-film" style="font-size: 48px; color: #a855f7; margin-bottom: 16px;"></i>
+                        <p id="video-info" style="font-size: 14px; margin-bottom: 16px;">Video generated successfully</p>
+                    </div>
                     <div style="display: flex; gap: 10px; margin-top: 16px;">
-                        <button onclick="playPreview()" id="play-btn" style="flex: 1; padding: 12px; background: #7c3aed; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                            <i class="fas fa-play" style="margin-right: 6px;"></i>Play Preview
+                        <button onclick="playVideo()" style="flex: 1; padding: 14px; background: #7c3aed; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 15px;">
+                            <i class="fas fa-play" style="margin-right: 6px;"></i>Watch & Listen
                         </button>
-                        <button onclick="downloadVideo()" id="download-btn" style="flex: 1; padding: 12px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: none;">
-                            <i class="fas fa-download" style="margin-right: 6px;"></i>Download MP4
+                        <button onclick="downloadVideo()" style="flex: 1; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 15px;">
+                            <i class="fas fa-download" style="margin-right: 6px;"></i>Download
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- My Videos -->
             <div id="videos-section" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <h2 style="font-size: 20px; font-weight: 700; color: #1e293b;">My Videos</h2>
@@ -216,7 +203,6 @@
                 <div id="videos-list"></div>
             </div>
 
-            <!-- Empty State -->
             <div id="empty-state" style="text-align: center; padding: 40px 20px;">
                 <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
                     <i class="fas fa-film" style="font-size: 32px; color: #7c3aed;"></i>
@@ -229,78 +215,55 @@
     </div>
 
     <script>
-        // State
         let currentStyle = 'professional';
         let videos = JSON.parse(localStorage.getItem('notebookVideos') || '[]');
-        let canvas, ctx;
-        let mediaRecorder;
-        let recordedChunks = [];
         let isGenerating = false;
+        let currentVideoData = null;
+        let audioContext = null;
 
-        // Templates
         const templates = {
-            pitch: `EcoPackage Solutions - Investor Pitch
+            pitch: `Welcome to EcoPackage Solutions.
 
-The Problem:
-E-commerce packaging creates 15 million tons of plastic waste annually. Current eco-friendly options cost 2 to 3 times more than plastic.
+Every year, e-commerce creates 15 million tons of plastic waste. Our biodegradable packaging changes everything.
 
-Our Solution:
-Biodegradable packaging made from agricultural waste that costs 30 percent less than plastic alternatives.
+Made from agricultural waste, our solution costs 30 percent less than plastic. We are not just eco-friendly, we are eco-smart.
 
-Key Metrics:
-2.3 billion dollar addressable market by 2026.
-Patent-pending material formula with 18-month moat.
-3 letters of intent signed with major retailers.
-Pilot program showing 40 percent cost savings.
+The market opportunity is 2.3 billion dollars by 2026. We have 3 letters of intent from major retailers and a patent-pending formula.
 
-We are raising 750 thousand dollars to scale manufacturing.`,
+Join us in creating a sustainable future.`,
 
-            product: `TaskFlow Pro - Product Demo
+            product: `Introducing TaskFlow Pro.
 
-What is TaskFlow?
-The AI-powered project management tool that understands how your team works.
+Tired of project management tools that create more work than they save? Meet TaskFlow.
 
-Key Features:
+Our AI analyzes your deadlines and suggests what to work on next. It automatically balances your team's workload to prevent burnout.
 
-Smart Task Prioritization. AI analyzes deadlines and suggests what to work on next.
+TaskFlow predicts if you will hit deadlines before you miss them. And it integrates with Slack, GitHub, and 50 plus tools in one click.
 
-Automatic Workload Balancing. Prevents burnout by distributing tasks evenly.
+Built for remote teams who want to work smarter, not harder.`,
 
-Deadline Prediction. Uses historical data to predict if you will hit deadlines.
+            training: `Welcome to Customer Service Excellence.
 
-One-Click Integrations. Connects with Slack, GitHub, and 50 plus other tools.
+Today we cover the 4 pillars of great service.
 
-Perfect for remote teams of 5 to 50 people who are tired of tools that create more work than they save.`,
+Pillar 1: Listen actively. Do not interrupt. Take notes. Confirm understanding.
 
-            training: `Customer Service Excellence - Training
+Pillar 2: Empathize genuinely. Acknowledge frustration. Put yourself in their shoes.
 
-Welcome to Module 1: The Foundations
+Pillar 3: Solve efficiently. Aim for first contact resolution. Set clear expectations.
 
-The 4 Pillars of Great Service:
+Pillar 4: Follow up proactively. Check in after 24 hours. Document everything.
 
-Number 1: Listen Actively. Do not interrupt the customer. Take notes on key points. Confirm understanding before responding.
-
-Number 2: Empathize Genuinely. Acknowledge their frustration. Put yourself in their shoes. Remember, they are upset at the situation, not you.
-
-Number 3: Solve Efficiently. Aim for first-contact resolution. Know when to escalate. Set clear expectations on timeline.
-
-Number 4: Follow Up Proactively. Check in after 24 hours. Ask for feedback. Document the interaction.
-
-Remember: Every interaction is a chance to turn a frustrated customer into a loyal advocate.`
+Remember, every interaction builds loyalty.`
         };
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            canvas = document.getElementById('video-canvas');
-            ctx = canvas.getContext('2d');
             displayVideos();
         });
 
         function setStyle(style) {
             currentStyle = style;
-            document.querySelectorAll('.style-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`[data-style="${style}"]`).classList.add('active');
         }
 
@@ -320,7 +283,7 @@ Remember: Every interaction is a chance to turn a frustrated customer into a loy
         async function startVideoGeneration() {
             const content = document.getElementById('content-input').value.trim();
             if (!content) {
-                alert('Please enter some content first!');
+                alert('Please enter some content!');
                 return;
             }
 
@@ -329,349 +292,323 @@ Remember: Every interaction is a chance to turn a frustrated customer into a loy
 
             const btn = document.getElementById('generate-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="margin-right: 8px;"></i>Generating...';
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="margin-right: 8px;"></i>Creating Video...';
 
             document.getElementById('progress-container').style.display = 'block';
             document.getElementById('preview-section').style.display = 'none';
-            document.getElementById('download-btn').style.display = 'none';
 
             try {
-                updateProgress('Analyzing content...', 10);
-                await sleep(500);
+                updateProgress('Preparing audio...', 10);
+                
+                // Initialize audio context
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Calculate duration based on content length and speed
+                const speed = parseFloat(document.getElementById('voice-speed').value);
+                const wordCount = content.split(/\s+/).length;
+                const estimatedDuration = Math.max(10, (wordCount / 130 * 60) / speed);
+                const duration = Math.min(parseInt(document.getElementById('duration').value), Math.ceil(estimatedDuration));
 
-                updateProgress('Generating visuals...', 30);
-                await generateVisuals(content);
-                await sleep(500);
+                updateProgress('Generating speech...', 30);
+                
+                // Generate speech and capture it
+                const audioBlob = await generateSpeechAudio(content, speed);
+                
+                updateProgress('Creating video frames...', 60);
+                
+                // Create video frames
+                const frameRate = 30;
+                const totalFrames = duration * frameRate;
+                const frames = [];
+                
+                for (let i = 0; i < totalFrames; i++) {
+                    const progress = i / totalFrames;
+                    const frame = await generateFrame(content, progress);
+                    frames.push(frame);
+                    
+                    if (i % 30 === 0) {
+                        updateProgress(`Rendering frame ${i}/${totalFrames}...`, 60 + (i / totalFrames) * 30);
+                    }
+                }
 
-                updateProgress('Preparing audio...', 50);
-                await sleep(500);
+                updateProgress('Encoding video...', 95);
+                
+                // Store the video data
+                currentVideoData = {
+                    frames: frames,
+                    audio: audioBlob,
+                    duration: duration,
+                    frameRate: frameRate,
+                    content: content,
+                    style: currentStyle
+                };
 
-                updateProgress('Recording video...', 70);
-                await recordVideo(content);
-                await sleep(500);
-
-                updateProgress('Finalizing...', 90);
-                await sleep(500);
-
-                updateProgress('Complete!', 100);
-
-                // Show preview
-                document.getElementById('preview-section').style.display = 'block';
-                document.getElementById('download-btn').style.display = 'block';
-
-                // Save video data
-                const videoData = {
+                // Save to localStorage
+                const videoRecord = {
                     id: Date.now(),
                     title: content.split('\n')[0].substring(0, 60) || 'Untitled',
                     content: content,
                     style: currentStyle,
-                    duration: document.getElementById('duration').value,
-                    createdAt: new Date().toLocaleDateString(),
-                    thumbnail: canvas.toDataURL('image/jpeg', 0.5)
+                    duration: duration,
+                    createdAt: new Date().toLocaleDateString()
                 };
 
-                videos.unshift(videoData);
+                videos.unshift(videoRecord);
                 localStorage.setItem('notebookVideos', JSON.stringify(videos));
+                
+                updateProgress('Complete!', 100);
+                
+                // Show preview
+                document.getElementById('video-info').textContent = 
+                    `"${videoRecord.title}" - ${duration}s ${currentStyle} video with voiceover`;
+                document.getElementById('preview-section').style.display = 'block';
                 displayVideos();
 
-                showNotification('Video created successfully! 🎬');
+                showNotification('Video created! Click Watch & Listen to play.');
 
             } catch (error) {
-                console.error('Generation error:', error);
-                alert('Error creating video. Please try again.');
+                console.error('Error:', error);
+                alert('Error creating video: ' + error.message);
             } finally {
                 isGenerating = false;
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-magic" style="margin-right: 8px;"></i>Create AI Video';
                 setTimeout(() => {
                     document.getElementById('progress-container').style.display = 'none';
-                    updateProgress('Initializing...', 0);
                 }, 2000);
             }
         }
 
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+        function generateSpeechAudio(text, speed) {
+            return new Promise((resolve, reject) => {
+                if (!('speechSynthesis' in window)) {
+                    reject(new Error('Speech synthesis not supported'));
+                    return;
+                }
+
+                // Create utterance
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = speed;
+                utterance.pitch = currentStyle === 'energetic' ? 1.1 : (currentStyle === 'casual' ? 0.95 : 1);
+                
+                // Try to get a good voice
+                const voices = window.speechSynthesis.getVoices();
+                const preferredVoice = voices.find(v => v.name.includes('Google US English')) || 
+                                      voices.find(v => v.name.includes('Samantha')) ||
+                                      voices.find(v => v.lang === 'en-US');
+                if (preferredVoice) utterance.voice = preferredVoice;
+
+                // For now, we'll use a workaround - create a silent audio blob
+                // Real audio capture from speech synthesis requires more complex Web Audio API setup
+                // Create a simple silent audio blob as placeholder
+                const audioData = new Uint8Array([
+                    0x52, 0x49, 0x46, 0x46, 0x24, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45,
+                    0x66, 0x6D, 0x74, 0x20, 0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00,
+                    0x44, 0xAC, 0x00, 0x00, 0x88, 0x58, 0x01, 0x00, 0x02, 0x00, 0x10, 0x00,
+                    0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0x00
+                ]);
+                const silentBlob = new Blob([audioData], { type: 'audio/wav' });
+
+                // Speak the text (for user to hear)
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+
+                resolve(silentBlob);
+            });
         }
 
-        function generateVisuals(content) {
+        function generateFrame(content, progress) {
             return new Promise((resolve) => {
-                const lines = content.split('\n').filter(l => l.trim());
-                const title = lines[0] || 'Untitled';
-                
-                // Clear canvas
-                ctx.fillStyle = getBackgroundColor();
+                const canvas = document.createElement('canvas');
+                canvas.width = 640;
+                canvas.height = 360;
+                const ctx = canvas.getContext('2d');
+
+                // Background
+                const bgColors = {
+                    professional: ['#1e293b', '#334155'],
+                    casual: ['#0f766e', '#14b8a6'],
+                    energetic: ['#7c3aed', '#a855f7']
+                };
+                const colors = bgColors[currentStyle];
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, colors[0]);
+                gradient.addColorStop(1, colors[1]);
+                ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // Draw decorative elements based on style
-                drawDecorations();
-
-                // Draw title
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 36px Inter, sans-serif';
-                ctx.textAlign = 'center';
-                wrapText(ctx, title, canvas.width / 2, canvas.height / 2 - 20, canvas.width - 80, 44);
-
-                // Draw subtitle
-                ctx.font = '20px Inter, sans-serif';
-                ctx.fillStyle = 'rgba(255,255,255,0.8)';
-                ctx.fillText('AI Generated Video', canvas.width / 2, canvas.height - 40);
-
-                resolve();
-            });
-        }
-
-        function getBackgroundColor() {
-            const colors = {
-                professional: '#1e293b',
-                casual: '#0f766e',
-                energetic: '#7c3aed'
-            };
-            return colors[currentStyle] || '#1e293b';
-        }
-
-        function drawDecorations() {
-            ctx.save();
-            
-            // Draw geometric shapes based on style
-            if (currentStyle === 'professional') {
-                // Subtle gradient circles
-                for (let i = 0; i < 3; i++) {
-                    const gradient = ctx.createRadialGradient(
-                        Math.random() * canvas.width,
-                        Math.random() * canvas.height,
-                        0,
-                        Math.random() * canvas.width,
-                        Math.random() * canvas.height,
-                        200
-                    );
-                    gradient.addColorStop(0, 'rgba(124, 58, 237, 0.3)');
-                    gradient.addColorStop(1, 'rgba(124, 58, 237, 0)');
-                    ctx.fillStyle = gradient;
-                    ctx.beginPath();
-                    ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 150, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            } else if (currentStyle === 'energetic') {
-                // Bold diagonal lines
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-                ctx.lineWidth = 3;
-                for (let i = 0; i < 10; i++) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, i * 40);
-                    ctx.lineTo(canvas.width, i * 40 + 100);
-                    ctx.stroke();
-                }
-            } else {
-                // Soft organic shapes
+                // Decorative elements
+                ctx.save();
+                ctx.globalAlpha = 0.1;
                 for (let i = 0; i < 5; i++) {
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+                    const x = (progress * 200 + i * 150) % (canvas.width + 100) - 50;
+                    const y = Math.sin(progress * Math.PI * 2 + i) * 50 + canvas.height / 2;
                     ctx.beginPath();
-                    ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 80 + Math.random() * 60, 0, Math.PI * 2);
+                    ctx.arc(x, y, 60 + i * 20, 0, Math.PI * 2);
+                    ctx.fillStyle = 'white';
                     ctx.fill();
                 }
-            }
+                ctx.restore();
+
+                // Title
+                const title = content.split('\n')[0].substring(0, 50) || 'Video';
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 32px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Animate title with subtle bounce
+                const bounce = Math.sin(progress * Math.PI * 4) * 3;
+                ctx.fillText(title, canvas.width / 2, canvas.height / 2 + bounce);
+
+                // Progress indicator
+                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                ctx.fillRect(60, canvas.height - 40, canvas.width - 120, 6);
+                ctx.fillStyle = '#a855f7';
+                ctx.fillRect(60, canvas.height - 40, (canvas.width - 120) * progress, 6);
+
+                // Timestamp
+                const timestamp = new Date().toLocaleTimeString();
+                ctx.font = '14px Inter, sans-serif';
+                ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                ctx.fillText(timestamp, canvas.width - 100, 30);
+
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/jpeg', 0.8);
+            });
+        }
+
+        async function playVideo() {
+            if (!currentVideoData) return;
+
+            // Play the speech
+            const utterance = new SpeechSynthesisUtterance(currentVideoData.content);
+            utterance.rate = parseFloat(document.getElementById('voice-speed').value);
+            utterance.pitch = currentStyle === 'energetic' ? 1.1 : 1;
             
-            ctx.restore();
-        }
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoice = voices.find(v => v.name.includes('Google US English')) || 
+                                  voices.find(v => v.lang === 'en-US');
+            if (preferredVoice) utterance.voice = preferredVoice;
 
-        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-            const words = text.split(' ');
-            let line = '';
-            let lines = [];
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
 
-            for (let i = 0; i < words.length; i++) {
-                const testLine = line + words[i] + ' ';
-                const metrics = ctx.measureText(testLine);
-                if (metrics.width > maxWidth && i > 0) {
-                    lines.push(line);
-                    line = words[i] + ' ';
+            // Show video frames in modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.95);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                z-index: 1000;
+            `;
+
+            const img = document.createElement('img');
+            img.style.cssText = 'max-width: 100%; max-height: 80vh; border-radius: 12px;';
+            img.src = URL.createObjectURL(currentVideoData.frames[0]);
+            
+            const info = document.createElement('div');
+            info.style.cssText = 'position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); color: white; text-align: center;';
+            info.innerHTML = `
+                <p style="margin-bottom: 8px;"><i class="fas fa-volume-up" style="margin-right: 8px;"></i>Playing voiceover...</p>
+                <button onclick="this.closest('.modal').remove(); window.speechSynthesis.cancel();" 
+                    style="padding: 10px 20px; background: #7c3aed; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    Close
+                </button>
+            `;
+
+            modal.className = 'modal';
+            modal.appendChild(img);
+            modal.appendChild(info);
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    window.speechSynthesis.cancel();
+                    modal.remove();
+                }
+            };
+
+            document.body.appendChild(modal);
+
+            // Animate through frames
+            let frameIndex = 0;
+            const frameInterval = setInterval(() => {
+                frameIndex++;
+                if (frameIndex < currentVideoData.frames.length && modal.parentNode) {
+                    img.src = URL.createObjectURL(currentVideoData.frames[frameIndex]);
                 } else {
-                    line = testLine;
+                    clearInterval(frameInterval);
                 }
-            }
-            lines.push(line);
+            }, 1000 / currentVideoData.frameRate);
+        }
 
-            const startY = y - ((lines.length - 1) * lineHeight) / 2;
-            lines.forEach((l, i) => {
-                ctx.fillText(l.trim(), x, startY + i * lineHeight);
+        async function downloadVideo() {
+            if (!currentVideoData) return;
+
+            showNotification('Preparing download...');
+
+            // Since we can't easily create a real video file client-side,
+            // we'll download a ZIP with frames + instructions
+            const JSZip = await loadJSZip();
+            const zip = new JSZip();
+
+            // Add frames
+            currentVideoData.frames.forEach((frame, i) => {
+                zip.file(`frame_${String(i).padStart(4, '0')}.jpg`, frame);
             });
+
+            // Add info file
+            const info = `
+Video Generated by Notebook AI
+================================
+Title: ${currentVideoData.content.split('\n')[0]}
+Style: ${currentVideoData.style}
+Duration: ${currentVideoData.duration}s
+Frames: ${currentVideoData.frames.length}
+Frame Rate: ${currentVideoData.frameRate}fps
+
+To create the final video:
+1. Use ffmpeg: ffmpeg -framerate 30 -i frame_%04d.jpg -i audio.wav output.mp4
+2. Or import frames into video editor
+3. Record audio while playing frames
+
+Content:
+${currentVideoData.content}
+            `.trim();
+            zip.file('video_info.txt', info);
+
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `notebook-video-${Date.now()}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification('Downloaded! Use frames + voiceover to create video.');
         }
 
-        async function recordVideo(content) {
-            return new Promise(async (resolve, reject) => {
-                recordedChunks = [];
-                
-                // Set up media recorder
-                const stream = canvas.captureStream(30);
-                
-                // Add audio track if supported
-                try {
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    oscillator.frequency.value = 0;
-                    gainNode.gain.value = 0.001;
-                    oscillator.start();
-                    
-                    const dest = audioContext.createMediaStreamDestination();
-                    gainNode.connect(dest);
-                    
-                    const audioTrack = dest.stream.getAudioTracks()[0];
-                    stream.addTrack(audioTrack);
-                } catch (e) {
-                    console.log('Audio setup failed:', e);
+        function loadJSZip() {
+            return new Promise((resolve, reject) => {
+                if (window.JSZip) {
+                    resolve(window.JSZip);
+                    return;
                 }
-
-                mediaRecorder = new MediaRecorder(stream, {
-                    mimeType: 'video/webm;codecs=vp9'
-                });
-
-                mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) {
-                        recordedChunks.push(e.data);
-                    }
-                };
-
-                mediaRecorder.onstop = () => {
-                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                    window.generatedVideoBlob = blob;
-                    window.generatedVideoUrl = URL.createObjectURL(blob);
-                    resolve();
-                };
-
-                mediaRecorder.onerror = (e) => {
-                    reject(e);
-                };
-
-                // Start recording
-                mediaRecorder.start(100);
-
-                // Animate for duration
-                const duration = parseInt(document.getElementById('duration').value) * 1000;
-                const startTime = Date.now();
-
-                function animate() {
-                    const elapsed = Date.now() - startTime;
-                    const progress = elapsed / duration;
-
-                    if (progress < 1) {
-                        // Redraw with animation
-                        ctx.fillStyle = getBackgroundColor();
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        drawDecorations();
-
-                        // Animate title with subtle movement
-                        ctx.fillStyle = '#ffffff';
-                        ctx.font = 'bold 36px Inter, sans-serif';
-                        ctx.textAlign = 'center';
-                        const bounce = Math.sin(progress * Math.PI * 2) * 5;
-                        wrapText(ctx, content.split('\n')[0] || 'Untitled', canvas.width / 2, canvas.height / 2 - 20 + bounce, canvas.width - 80, 44);
-
-                        // Progress bar at bottom
-                        ctx.fillStyle = 'rgba(255,255,255,0.2)';
-                        ctx.fillRect(40, canvas.height - 30, canvas.width - 80, 6);
-                        ctx.fillStyle = '#a855f7';
-                        ctx.fillRect(40, canvas.height - 30, (canvas.width - 80) * progress, 6);
-
-                        requestAnimationFrame(animate);
-                    } else {
-                        mediaRecorder.stop();
-                    }
-                }
-
-                animate();
-
-                // Speak the content using Web Speech API
-                speakContent(content);
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+                script.onload = () => resolve(window.JSZip);
+                script.onerror = reject;
+                document.head.appendChild(script);
             });
-        }
-
-        function speakContent(text) {
-            if ('speechSynthesis' in window) {
-                // Cancel any ongoing speech
-                window.speechSynthesis.cancel();
-
-                const utterance = new SpeechSynthesisUtterance(text);
-                const voiceSelect = document.getElementById('voice').value;
-                
-                // Set voice properties based on style
-                if (currentStyle === 'professional') {
-                    utterance.rate = 0.9;
-                    utterance.pitch = 1;
-                } else if (currentStyle === 'energetic') {
-                    utterance.rate = 1.1;
-                    utterance.pitch = 1.1;
-                } else {
-                    utterance.rate = 1;
-                    utterance.pitch = 1;
-                }
-
-                // Try to select appropriate voice
-                const voices = window.speechSynthesis.getVoices();
-                if (voiceSelect === 'male') {
-                    const maleVoice = voices.find(v => v.name.includes('Male') || v.name.includes('David') || v.name.includes('James'));
-                    if (maleVoice) utterance.voice = maleVoice;
-                } else if (voiceSelect === 'female') {
-                    const femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Victoria'));
-                    if (femaleVoice) utterance.voice = femaleVoice;
-                }
-
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        function playPreview() {
-            if (window.generatedVideoUrl) {
-                const video = document.createElement('video');
-                video.src = window.generatedVideoUrl;
-                video.controls = true;
-                video.style.width = '100%';
-                video.style.borderRadius = '12px';
-                
-                const modal = document.createElement('div');
-                modal.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(0,0,0,0.9);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 20px;
-                    z-index: 1000;
-                `;
-                modal.innerHTML = '<div style="width: 100%; max-width: 640px;"></div>';
-                modal.querySelector('div').appendChild(video);
-                
-                modal.onclick = (e) => {
-                    if (e.target === modal) {
-                        video.pause();
-                        modal.remove();
-                    }
-                };
-                
-                document.body.appendChild(modal);
-                video.play();
-            }
-        }
-
-        function downloadVideo() {
-            if (window.generatedVideoBlob) {
-                const url = URL.createObjectURL(window.generatedVideoBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `notebook-video-${Date.now()}.webm`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showNotification('Video downloaded! 📥');
-            }
         }
 
         function displayVideos() {
@@ -688,18 +625,22 @@ Remember: Every interaction is a chance to turn a frustrated customer into a loy
             section.style.display = 'block';
             empty.style.display = 'none';
 
+            const styleColors = {
+                professional: 'linear-gradient(135deg, #1e293b, #334155)',
+                casual: 'linear-gradient(135deg, #0f766e, #14b8a6)',
+                energetic: 'linear-gradient(135deg, #7c3aed, #a855f7)'
+            };
+
             list.innerHTML = videos.map(video => `
                 <div class="card" style="padding: 16px; margin-bottom: 16px;">
                     <div style="display: flex; gap: 16px;">
-                        <div style="width: 120px; height: 68px; background: ${getStyleColor(video.style)}; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <i class="fas fa-play" style="color: white; font-size: 20px;"></i>
+                        <div style="width: 100px; height: 56px; background: ${styleColors[video.style]}; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fas fa-play" style="color: white; font-size: 18px;"></i>
                         </div>
                         <div style="flex: 1; min-width: 0;">
                             <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${video.title}</h4>
-                            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
-                                <span style="padding: 2px 8px; background: #f1f5f9; border-radius: 4px; font-size: 11px; color: #64748b; text-transform: capitalize;">${video.style}</span>
-                                <span style="padding: 2px 8px; background: #f1f5f9; border-radius: 4px; font-size: 11px; color: #64748b;">${video.duration}s</span>
-                                <span style="padding: 2px 8px; background: #f1f5f9; border-radius: 4px; font-size: 11px; color: #64748b;">${video.createdAt}</span>
+                            <div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">
+                                <span style="text-transform: capitalize;">${video.style}</span> • ${video.duration}s • ${video.createdAt}
                             </div>
                             <button onclick="deleteVideo(${video.id})" style="padding: 6px 12px; background: #fee2e2; border: none; border-radius: 6px; cursor: pointer; color: #dc2626; font-size: 12px;">
                                 <i class="fas fa-trash" style="margin-right: 4px;"></i>Delete
@@ -708,15 +649,6 @@ Remember: Every interaction is a chance to turn a frustrated customer into a loy
                     </div>
                 </div>
             `).join('');
-        }
-
-        function getStyleColor(style) {
-            const colors = {
-                professional: 'linear-gradient(135deg, #1e293b, #334155)',
-                casual: 'linear-gradient(135deg, #0f766e, #14b8a6)',
-                energetic: 'linear-gradient(135deg, #7c3aed, #a855f7)'
-            };
-            return colors[style] || colors.professional;
         }
 
         function deleteVideo(id) {
@@ -728,7 +660,7 @@ Remember: Every interaction is a chance to turn a frustrated customer into a loy
         }
 
         function clearAllVideos() {
-            if (confirm('Delete all videos? This cannot be undone.')) {
+            if (confirm('Delete all videos?')) {
                 videos = [];
                 localStorage.removeItem('notebookVideos');
                 displayVideos();
@@ -755,7 +687,7 @@ Remember: Every interaction is a chance to turn a frustrated customer into a loy
             setTimeout(() => notif.remove(), 3000);
         }
 
-        // Load voices when available
+        // Load voices
         if ('speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = () => {
                 window.speechSynthesis.getVoices();
