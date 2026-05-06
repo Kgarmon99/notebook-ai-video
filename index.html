@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#7c3aed">
-    <meta name="description" content="Turn any notes, ideas, or topics into AI-powered explainer videos">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="AI Video">
-    <link rel="manifest" href="manifest.json">
     <title>Notebook AI Video | Turn Ideas Into Videos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -19,6 +14,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            margin: 0;
         }
         .app-container {
             max-width: 480px;
@@ -27,51 +23,55 @@
             background: #f8fafc;
             position: relative;
         }
-        .gradient-text {
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
         .btn-primary {
             background: linear-gradient(135deg, #7c3aed, #a855f7);
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s;
         }
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
         }
-        .btn-primary:active {
-            transform: translateY(0);
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         .card {
             background: white;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
-        .video-thumbnail {
-            aspect-ratio: 16/9;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        textarea:focus, select:focus {
-            outline: none;
-            border-color: #a855f7;
-            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+        .style-btn {
+            transition: all 0.2s;
         }
         .style-btn.active {
             background: #7c3aed;
             color: white;
             border-color: #7c3aed;
         }
+        #video-canvas {
+            width: 100%;
+            max-width: 640px;
+            aspect-ratio: 16/9;
+            background: #1e293b;
+            border-radius: 12px;
+        }
+        .progress-bar {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #7c3aed, #a855f7);
+            transition: width 0.3s;
+        }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
         .animate-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            animation: pulse 1.5s ease-in-out infinite;
         }
     </style>
 </head>
@@ -79,7 +79,7 @@
     <div class="app-container">
         <!-- Header -->
         <header style="background: linear-gradient(135deg, #7c3aed, #a855f7); padding: 24px 20px; color: white;">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-video" style="font-size: 24px;"></i>
                 </div>
@@ -90,23 +90,22 @@
             </div>
         </header>
 
-        <!-- Main Content -->
         <main style="padding: 20px;">
             
-            <!-- Input Card -->
+            <!-- Input Section -->
             <div class="card" style="padding: 24px; margin-bottom: 20px;">
                 <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #1e293b;">
                     <i class="fas fa-lightbulb" style="color: #fbbf24; margin-right: 8px;"></i>
                     What should we create?
                 </h2>
                 <p style="font-size: 14px; color: #64748b; margin-bottom: 20px;">
-                    Paste your notes, ideas, or any topic. Our AI will transform it into an engaging explainer video.
+                    Enter your content. Our AI will generate a video with voiceover and visuals.
                 </p>
 
                 <textarea 
                     id="content-input" 
-                    placeholder="Enter your content here...&#10;&#10;Examples:&#10;• A startup pitch about sustainable packaging&#10;• Product demo walkthrough&#10;• Training video on customer service&#10;• Research summary on renewable energy"
-                    style="width: 100%; height: 180px; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; resize: vertical; font-family: inherit; margin-bottom: 20px; line-height: 1.6;"></textarea>
+                    placeholder="Enter your content here..."
+                    style="width: 100%; height: 150px; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; resize: vertical; font-family: inherit; margin-bottom: 20px; line-height: 1.6;"></textarea>
 
                 <!-- Style Selection -->
                 <div style="margin-bottom: 20px;">
@@ -132,52 +131,81 @@
                     <div>
                         <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Duration</label>
                         <select id="duration" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: white;">
-                            <option value="30">30 seconds</option>
-                            <option value="60" selected>1 minute</option>
-                            <option value="90">90 seconds</option>
-                            <option value="120">2 minutes</option>
+                            <option value="15">15 seconds</option>
+                            <option value="30" selected>30 seconds</option>
+                            <option value="60">60 seconds</option>
                         </select>
                     </div>
                     <div>
                         <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Voice</label>
                         <select id="voice" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: white;">
-                            <option value="natural">Natural</option>
-                            <option value="professional">Professional</option>
-                            <option value="friendly">Friendly</option>
+                            <option value="default">Default</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- Generate Button -->
-                <button onclick="generateVideo()" id="generate-btn" class="btn-primary" style="width: 100%; padding: 18px; border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer;">
+                <button onclick="startVideoGeneration()" id="generate-btn" class="btn-primary" style="width: 100%; padding: 18px; border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer;">
                     <i class="fas fa-magic" style="margin-right: 8px;"></i>
                     Create AI Video
                 </button>
+
+                <!-- Progress Bar -->
+                <div id="progress-container" style="display: none; margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span id="progress-text" style="font-size: 13px; color: #64748b;">Initializing...</span>
+                        <span id="progress-percent" style="font-size: 13px; font-weight: 600; color: #7c3aed;">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Quick Templates -->
+            <!-- Templates -->
             <div class="card" style="padding: 20px; margin-bottom: 20px; background: linear-gradient(135deg, #fef3c7, #fde68a); border: none;">
                 <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #92400e;">
                     <i class="fas fa-star" style="margin-right: 6px;"></i>
-                    Quick Start Templates
+                    Quick Templates
                 </h3>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button onclick="loadTemplate('pitch')" style="text-align: left; padding: 14px; background: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-rocket" style="color: #7c3aed;"></i>
-                        <span>Startup Investor Pitch</span>
+                    <button onclick="loadTemplate('pitch')" style="text-align: left; padding: 14px; background: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px;">
+                        <i class="fas fa-rocket" style="color: #7c3aed; margin-right: 10px;"></i>
+                        Startup Investor Pitch
                     </button>
-                    <button onclick="loadTemplate('product')" style="text-align: left; padding: 14px; background: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-box-open" style="color: #7c3aed;"></i>
-                        <span>Product Demo Video</span>
+                    <button onclick="loadTemplate('product')" style="text-align: left; padding: 14px; background: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px;">
+                        <i class="fas fa-box-open" style="color: #7c3aed; margin-right: 10px;"></i>
+                        Product Demo Video
                     </button>
-                    <button onclick="loadTemplate('training')" style="text-align: left; padding: 14px; background: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-chalkboard-teacher" style="color: #7c3aed;"></i>
-                        <span>Training & Onboarding</span>
+                    <button onclick="loadTemplate('training')" style="text-align: left; padding: 14px; background: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px;">
+                        <i class="fas fa-chalkboard-teacher" style="color: #7c3aed; margin-right: 10px;"></i>
+                        Training & Onboarding
                     </button>
                 </div>
             </div>
 
-            <!-- My Videos Section -->
+            <!-- Preview Canvas (hidden initially) -->
+            <div id="preview-section" style="display: none; margin-bottom: 20px;">
+                <div class="card" style="padding: 20px;">
+                    <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #1e293b;">
+                        <i class="fas fa-eye" style="color: #7c3aed; margin-right: 8px;"></i>
+                        Preview
+                    </h3>
+                    <canvas id="video-canvas" width="640" height="360"></canvas>
+                    <div style="display: flex; gap: 10px; margin-top: 16px;">
+                        <button onclick="playPreview()" id="play-btn" style="flex: 1; padding: 12px; background: #7c3aed; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-play" style="margin-right: 6px;"></i>Play Preview
+                        </button>
+                        <button onclick="downloadVideo()" id="download-btn" style="flex: 1; padding: 12px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: none;">
+                            <i class="fas fa-download" style="margin-right: 6px;"></i>Download MP4
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Videos -->
             <div id="videos-section" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <h2 style="font-size: 20px; font-weight: 700; color: #1e293b;">My Videos</h2>
@@ -188,103 +216,85 @@
                 <div id="videos-list"></div>
             </div>
 
-        </main>
-
-        <!-- Empty State (when no videos) -->
-        <div id="empty-state" style="text-align: center; padding: 40px 20px;">
-            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                <i class="fas fa-film" style="font-size: 32px; color: #7c3aed;"></i>
+            <!-- Empty State -->
+            <div id="empty-state" style="text-align: center; padding: 40px 20px;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <i class="fas fa-film" style="font-size: 32px; color: #7c3aed;"></i>
+                </div>
+                <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 8px;">No videos yet</h3>
+                <p style="font-size: 14px; color: #64748b;">Create your first AI video above</p>
             </div>
-            <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 8px;">No videos yet</h3>
-            <p style="font-size: 14px; color: #64748b;">Create your first AI video above</p>
-        </div>
+
+        </main>
     </div>
 
     <script>
+        // State
         let currentStyle = 'professional';
         let videos = JSON.parse(localStorage.getItem('notebookVideos') || '[]');
+        let canvas, ctx;
+        let mediaRecorder;
+        let recordedChunks = [];
+        let isGenerating = false;
 
+        // Templates
         const templates = {
-            pitch: `Startup Pitch: EcoPackage Solutions
+            pitch: `EcoPackage Solutions - Investor Pitch
 
 The Problem:
-E-commerce packaging creates 15 million tons of plastic waste annually. Current "eco-friendly" options cost 2-3x more than plastic.
+E-commerce packaging creates 15 million tons of plastic waste annually. Current eco-friendly options cost 2 to 3 times more than plastic.
 
 Our Solution:
-Biodegradable packaging made from agricultural waste that costs 30% LESS than plastic alternatives.
+Biodegradable packaging made from agricultural waste that costs 30 percent less than plastic alternatives.
 
 Key Metrics:
-• $2.3B addressable market by 2026
-• Patent-pending material formula with 18-month moat
-• 3 LOIs signed with major retailers
-• Pilot program showing 40% cost savings
+2.3 billion dollar addressable market by 2026.
+Patent-pending material formula with 18-month moat.
+3 letters of intent signed with major retailers.
+Pilot program showing 40 percent cost savings.
 
-Team:
-• CEO: Former Amazon packaging engineer (8 years)
-• CTO: Materials science PhD from MIT
-• Advisory board includes 2 Fortune 500 sustainability VPs
+We are raising 750 thousand dollars to scale manufacturing.`,
 
-Funding:
-Raising $750K seed to scale manufacturing and expand team.`,
-
-            product: `Product Demo: TaskFlow Pro
+            product: `TaskFlow Pro - Product Demo
 
 What is TaskFlow?
-The AI-powered project management tool that actually understands how your team works.
+The AI-powered project management tool that understands how your team works.
 
 Key Features:
 
-1. Smart Task Prioritization
-   AI analyzes deadlines, dependencies, and team capacity to suggest what to work on next.
+Smart Task Prioritization. AI analyzes deadlines and suggests what to work on next.
 
-2. Automatic Workload Balancing
-   Prevents burnout by distributing tasks evenly across your team.
+Automatic Workload Balancing. Prevents burnout by distributing tasks evenly.
 
-3. Deadline Prediction
-   Uses historical data to predict if you'll hit deadlines BEFORE you miss them.
+Deadline Prediction. Uses historical data to predict if you will hit deadlines.
 
-4. One-Click Integrations
-   Connects with Slack, GitHub, Google Workspace, and 50+ other tools.
+One-Click Integrations. Connects with Slack, GitHub, and 50 plus other tools.
 
-Who is it for?
-Remote teams of 5-50 people who are tired of project management tools that create more work than they save.
+Perfect for remote teams of 5 to 50 people who are tired of tools that create more work than they save.`,
 
-Pricing:
-• Free: Up to 5 users
-• Pro: $12/user/month
-• Enterprise: Custom pricing`,
-
-            training: `Customer Service Excellence Training
+            training: `Customer Service Excellence - Training
 
 Welcome to Module 1: The Foundations
 
 The 4 Pillars of Great Service:
 
-1. LISTEN ACTIVELY
-   • Don't interrupt the customer
-   • Take notes on key points
-   • Confirm understanding before responding
-   • Use phrases like "I hear you" and "I understand"
+Number 1: Listen Actively. Do not interrupt the customer. Take notes on key points. Confirm understanding before responding.
 
-2. EMPATHIZE GENUINELY
-   • Acknowledge their frustration
-   • Put yourself in their shoes
-   • Avoid defensive language
-   • Remember: They're upset at the situation, not you
+Number 2: Empathize Genuinely. Acknowledge their frustration. Put yourself in their shoes. Remember, they are upset at the situation, not you.
 
-3. SOLVE EFFICIENTLY
-   • Aim for first-contact resolution
-   • Know when to escalate
-   • Set clear expectations on timeline
-   • Follow up to ensure satisfaction
+Number 3: Solve Efficiently. Aim for first-contact resolution. Know when to escalate. Set clear expectations on timeline.
 
-4. FOLLOW UP PROACTIVELY
-   • Check in after 24 hours
-   • Ask for feedback on the resolution
-   • Document the interaction for future reference
+Number 4: Follow Up Proactively. Check in after 24 hours. Ask for feedback. Document the interaction.
 
 Remember: Every interaction is a chance to turn a frustrated customer into a loyal advocate.`
         };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            canvas = document.getElementById('video-canvas');
+            ctx = canvas.getContext('2d');
+            displayVideos();
+        });
 
         function setStyle(style) {
             currentStyle = style;
@@ -296,57 +306,372 @@ Remember: Every interaction is a chance to turn a frustrated customer into a loy
 
         function loadTemplate(type) {
             document.getElementById('content-input').value = templates[type];
-            // Auto-select appropriate style
             if (type === 'pitch') setStyle('professional');
             if (type === 'product') setStyle('energetic');
             if (type === 'training') setStyle('casual');
-            // Scroll to generate button
-            document.getElementById('generate-btn').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function generateVideo() {
+        function updateProgress(text, percent) {
+            document.getElementById('progress-text').textContent = text;
+            document.getElementById('progress-percent').textContent = percent + '%';
+            document.getElementById('progress-fill').style.width = percent + '%';
+        }
+
+        async function startVideoGeneration() {
             const content = document.getElementById('content-input').value.trim();
             if (!content) {
                 alert('Please enter some content first!');
                 return;
             }
 
-            const btn = document.getElementById('generate-btn');
-            const originalContent = btn.innerHTML;
-            
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="margin-right: 8px;"></i>Creating your video...';
-            btn.disabled = true;
+            if (isGenerating) return;
+            isGenerating = true;
 
-            // Simulate AI processing
-            setTimeout(() => {
-                const duration = document.getElementById('duration').value;
-                const voice = document.getElementById('voice').value;
-                
-                const video = {
+            const btn = document.getElementById('generate-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="margin-right: 8px;"></i>Generating...';
+
+            document.getElementById('progress-container').style.display = 'block';
+            document.getElementById('preview-section').style.display = 'none';
+            document.getElementById('download-btn').style.display = 'none';
+
+            try {
+                updateProgress('Analyzing content...', 10);
+                await sleep(500);
+
+                updateProgress('Generating visuals...', 30);
+                await generateVisuals(content);
+                await sleep(500);
+
+                updateProgress('Preparing audio...', 50);
+                await sleep(500);
+
+                updateProgress('Recording video...', 70);
+                await recordVideo(content);
+                await sleep(500);
+
+                updateProgress('Finalizing...', 90);
+                await sleep(500);
+
+                updateProgress('Complete!', 100);
+
+                // Show preview
+                document.getElementById('preview-section').style.display = 'block';
+                document.getElementById('download-btn').style.display = 'block';
+
+                // Save video data
+                const videoData = {
                     id: Date.now(),
-                    title: content.split('\n')[0].substring(0, 60) || 'Untitled Video',
+                    title: content.split('\n')[0].substring(0, 60) || 'Untitled',
                     content: content,
                     style: currentStyle,
-                    duration: duration,
-                    voice: voice,
+                    duration: document.getElementById('duration').value,
                     createdAt: new Date().toLocaleDateString(),
-                    status: 'ready'
+                    thumbnail: canvas.toDataURL('image/jpeg', 0.5)
                 };
 
-                videos.unshift(video);
+                videos.unshift(videoData);
                 localStorage.setItem('notebookVideos', JSON.stringify(videos));
-                
                 displayVideos();
-                
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-                
-                // Clear input
-                document.getElementById('content-input').value = '';
-                
-                // Show success
+
                 showNotification('Video created successfully! 🎬');
-            }, 2500);
+
+            } catch (error) {
+                console.error('Generation error:', error);
+                alert('Error creating video. Please try again.');
+            } finally {
+                isGenerating = false;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-magic" style="margin-right: 8px;"></i>Create AI Video';
+                setTimeout(() => {
+                    document.getElementById('progress-container').style.display = 'none';
+                    updateProgress('Initializing...', 0);
+                }, 2000);
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function generateVisuals(content) {
+            return new Promise((resolve) => {
+                const lines = content.split('\n').filter(l => l.trim());
+                const title = lines[0] || 'Untitled';
+                
+                // Clear canvas
+                ctx.fillStyle = getBackgroundColor();
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw decorative elements based on style
+                drawDecorations();
+
+                // Draw title
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 36px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                wrapText(ctx, title, canvas.width / 2, canvas.height / 2 - 20, canvas.width - 80, 44);
+
+                // Draw subtitle
+                ctx.font = '20px Inter, sans-serif';
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                ctx.fillText('AI Generated Video', canvas.width / 2, canvas.height - 40);
+
+                resolve();
+            });
+        }
+
+        function getBackgroundColor() {
+            const colors = {
+                professional: '#1e293b',
+                casual: '#0f766e',
+                energetic: '#7c3aed'
+            };
+            return colors[currentStyle] || '#1e293b';
+        }
+
+        function drawDecorations() {
+            ctx.save();
+            
+            // Draw geometric shapes based on style
+            if (currentStyle === 'professional') {
+                // Subtle gradient circles
+                for (let i = 0; i < 3; i++) {
+                    const gradient = ctx.createRadialGradient(
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height,
+                        0,
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height,
+                        200
+                    );
+                    gradient.addColorStop(0, 'rgba(124, 58, 237, 0.3)');
+                    gradient.addColorStop(1, 'rgba(124, 58, 237, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 150, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            } else if (currentStyle === 'energetic') {
+                // Bold diagonal lines
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 3;
+                for (let i = 0; i < 10; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, i * 40);
+                    ctx.lineTo(canvas.width, i * 40 + 100);
+                    ctx.stroke();
+                }
+            } else {
+                // Soft organic shapes
+                for (let i = 0; i < 5; i++) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+                    ctx.beginPath();
+                    ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 80 + Math.random() * 60, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            ctx.restore();
+        }
+
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let lines = [];
+
+            for (let i = 0; i < words.length; i++) {
+                const testLine = line + words[i] + ' ';
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && i > 0) {
+                    lines.push(line);
+                    line = words[i] + ' ';
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line);
+
+            const startY = y - ((lines.length - 1) * lineHeight) / 2;
+            lines.forEach((l, i) => {
+                ctx.fillText(l.trim(), x, startY + i * lineHeight);
+            });
+        }
+
+        async function recordVideo(content) {
+            return new Promise(async (resolve, reject) => {
+                recordedChunks = [];
+                
+                // Set up media recorder
+                const stream = canvas.captureStream(30);
+                
+                // Add audio track if supported
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    oscillator.frequency.value = 0;
+                    gainNode.gain.value = 0.001;
+                    oscillator.start();
+                    
+                    const dest = audioContext.createMediaStreamDestination();
+                    gainNode.connect(dest);
+                    
+                    const audioTrack = dest.stream.getAudioTracks()[0];
+                    stream.addTrack(audioTrack);
+                } catch (e) {
+                    console.log('Audio setup failed:', e);
+                }
+
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'video/webm;codecs=vp9'
+                });
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        recordedChunks.push(e.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    window.generatedVideoBlob = blob;
+                    window.generatedVideoUrl = URL.createObjectURL(blob);
+                    resolve();
+                };
+
+                mediaRecorder.onerror = (e) => {
+                    reject(e);
+                };
+
+                // Start recording
+                mediaRecorder.start(100);
+
+                // Animate for duration
+                const duration = parseInt(document.getElementById('duration').value) * 1000;
+                const startTime = Date.now();
+
+                function animate() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = elapsed / duration;
+
+                    if (progress < 1) {
+                        // Redraw with animation
+                        ctx.fillStyle = getBackgroundColor();
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        drawDecorations();
+
+                        // Animate title with subtle movement
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 36px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        const bounce = Math.sin(progress * Math.PI * 2) * 5;
+                        wrapText(ctx, content.split('\n')[0] || 'Untitled', canvas.width / 2, canvas.height / 2 - 20 + bounce, canvas.width - 80, 44);
+
+                        // Progress bar at bottom
+                        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                        ctx.fillRect(40, canvas.height - 30, canvas.width - 80, 6);
+                        ctx.fillStyle = '#a855f7';
+                        ctx.fillRect(40, canvas.height - 30, (canvas.width - 80) * progress, 6);
+
+                        requestAnimationFrame(animate);
+                    } else {
+                        mediaRecorder.stop();
+                    }
+                }
+
+                animate();
+
+                // Speak the content using Web Speech API
+                speakContent(content);
+            });
+        }
+
+        function speakContent(text) {
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                const voiceSelect = document.getElementById('voice').value;
+                
+                // Set voice properties based on style
+                if (currentStyle === 'professional') {
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1;
+                } else if (currentStyle === 'energetic') {
+                    utterance.rate = 1.1;
+                    utterance.pitch = 1.1;
+                } else {
+                    utterance.rate = 1;
+                    utterance.pitch = 1;
+                }
+
+                // Try to select appropriate voice
+                const voices = window.speechSynthesis.getVoices();
+                if (voiceSelect === 'male') {
+                    const maleVoice = voices.find(v => v.name.includes('Male') || v.name.includes('David') || v.name.includes('James'));
+                    if (maleVoice) utterance.voice = maleVoice;
+                } else if (voiceSelect === 'female') {
+                    const femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Victoria'));
+                    if (femaleVoice) utterance.voice = femaleVoice;
+                }
+
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function playPreview() {
+            if (window.generatedVideoUrl) {
+                const video = document.createElement('video');
+                video.src = window.generatedVideoUrl;
+                video.controls = true;
+                video.style.width = '100%';
+                video.style.borderRadius = '12px';
+                
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0,0,0,0.9);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                    z-index: 1000;
+                `;
+                modal.innerHTML = '<div style="width: 100%; max-width: 640px;"></div>';
+                modal.querySelector('div').appendChild(video);
+                
+                modal.onclick = (e) => {
+                    if (e.target === modal) {
+                        video.pause();
+                        modal.remove();
+                    }
+                };
+                
+                document.body.appendChild(modal);
+                video.play();
+            }
+        }
+
+        function downloadVideo() {
+            if (window.generatedVideoBlob) {
+                const url = URL.createObjectURL(window.generatedVideoBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `notebook-video-${Date.now()}.webm`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification('Video downloaded! 📥');
+            }
         }
 
         function displayVideos() {
@@ -366,67 +691,32 @@ Remember: Every interaction is a chance to turn a frustrated customer into a loy
             list.innerHTML = videos.map(video => `
                 <div class="card" style="padding: 16px; margin-bottom: 16px;">
                     <div style="display: flex; gap: 16px;">
-                        <div class="video-thumbnail" style="width: 140px; background: linear-gradient(135deg, ${getVideoColor(video.id)}); flex-shrink: 0;">
-                            <button onclick="playVideo(${video.id})" style="width: 48px; height: 48px; background: rgba(255,255,255,0.95); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-play" style="color: #7c3aed; font-size: 18px; margin-left: 3px;"></i>
-                            </button>
+                        <div style="width: 120px; height: 68px; background: ${getStyleColor(video.style)}; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fas fa-play" style="color: white; font-size: 20px;"></i>
                         </div>
                         <div style="flex: 1; min-width: 0;">
-                            <h4 style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${video.title}</h4>
-                            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
-                                <span style="padding: 3px 8px; background: #f1f5f9; border-radius: 4px; font-size: 11px; color: #64748b; text-transform: capitalize;">${video.style}</span>
-                                <span style="padding: 3px 8px; background: #f1f5f9; border-radius: 4px; font-size: 11px; color: #64748b;">${video.duration}s</span>
-                                <span style="padding: 3px 8px; background: #f1f5f9; border-radius: 4px; font-size: 11px; color: #64748b;">${video.createdAt}</span>
+                            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${video.title}</h4>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
+                                <span style="padding: 2px 8px; background: #f1f5f9; border-radius: 4px; font-size: 11px; color: #64748b; text-transform: capitalize;">${video.style}</span>
+                                <span style="padding: 2px 8px; background: #f1f5f9; border-radius: 4px; font-size: 11px; color: #64748b;">${video.duration}s</span>
+                                <span style="padding: 2px 8px; background: #f1f5f9; border-radius: 4px; font-size: 11px; color: #64748b;">${video.createdAt}</span>
                             </div>
-                            <div style="display: flex; gap: 8px;">
-                                <button onclick="playVideo(${video.id})" style="padding: 8px 14px; background: #7c3aed; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer;">
-                                    <i class="fas fa-play" style="margin-right: 4px;"></i>Play
-                                </button>
-                                <button onclick="shareVideo(${video.id})" style="padding: 8px 12px; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; color: #64748b;">
-                                    <i class="fas fa-share-alt"></i>
-                                </button>
-                                <button onclick="deleteVideo(${video.id})" style="padding: 8px 12px; background: #fee2e2; border: none; border-radius: 6px; cursor: pointer; color: #dc2626;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+                            <button onclick="deleteVideo(${video.id})" style="padding: 6px 12px; background: #fee2e2; border: none; border-radius: 6px; cursor: pointer; color: #dc2626; font-size: 12px;">
+                                <i class="fas fa-trash" style="margin-right: 4px;"></i>Delete
+                            </button>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        function getVideoColor(id) {
-            const colors = [
-                '#7c3aed, #a855f7',
-                '#ec4899, #f472b6',
-                '#3b82f6, #60a5fa',
-                '#10b981, #34d399',
-                '#f59e0b, #fbbf24',
-                '#ef4444, #f87171'
-            ];
-            return colors[id % colors.length];
-        }
-
-        function playVideo(id) {
-            const video = videos.find(v => v.id === id);
-            if (video) {
-                alert(`🎬 Now Playing: "${video.title}"\n\nDuration: ${video.duration} seconds\nStyle: ${video.style}\nVoice: ${video.voice}\n\n[Video player would open here with actual playback]`);
-            }
-        }
-
-        function shareVideo(id) {
-            const video = videos.find(v => v.id === id);
-            if (video) {
-                if (navigator.share) {
-                    navigator.share({
-                        title: video.title,
-                        text: `Check out this AI video: ${video.title}`,
-                        url: window.location.href
-                    });
-                } else {
-                    alert('Link copied to clipboard! 📋');
-                }
-            }
+        function getStyleColor(style) {
+            const colors = {
+                professional: 'linear-gradient(135deg, #1e293b, #334155)',
+                casual: 'linear-gradient(135deg, #0f766e, #14b8a6)',
+                energetic: 'linear-gradient(135deg, #7c3aed, #a855f7)'
+            };
+            return colors[style] || colors.professional;
         }
 
         function deleteVideo(id) {
@@ -459,19 +749,17 @@ Remember: Every interaction is a chance to turn a frustrated customer into a loy
                 font-size: 14px;
                 font-weight: 500;
                 z-index: 1000;
-                animation: slideUp 0.3s ease;
             `;
             notif.textContent = message;
             document.body.appendChild(notif);
             setTimeout(() => notif.remove(), 3000);
         }
 
-        // Load videos on page load
-        displayVideos();
-
-        // Service Worker for PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(() => {});
+        // Load voices when available
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
         }
     </script>
 </body>
