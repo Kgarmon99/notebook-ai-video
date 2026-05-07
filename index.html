@@ -40,14 +40,6 @@
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
-        .style-btn {
-            transition: all 0.2s;
-        }
-        .style-btn.active {
-            background: #7c3aed;
-            color: white;
-            border-color: #7c3aed;
-        }
         .progress-bar {
             height: 4px;
             background: #e2e8f0;
@@ -59,115 +51,72 @@
             background: linear-gradient(90deg, #7c3aed, #a855f7);
             transition: width 0.3s;
         }
-        #video-player {
-            width: 100%;
-            border-radius: 12px;
-            background: #1e293b;
+        /* Modal Styles */
+        #settings-modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 2000;
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-content {
+            background: white; width: 100%; max-width: 400px;
+            border-radius: 16px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <header style="background: linear-gradient(135deg, #7c3aed, #a855f7); padding: 24px 20px; color: white;">
+        <header style="background: linear-gradient(135deg, #7c3aed, #a855f7); padding: 24px 20px; color: white; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-video" style="font-size: 24px;"></i>
                 </div>
                 <div>
-                    <h1 style="font-size: 24px; font-weight: 800; margin: 0;">Notebook AI</h1>
-                    <p style="font-size: 13px; opacity: 0.9; margin: 0;">Turn ideas into videos</p>
+                    <h1 style="font-size: 20px; font-weight: 800; margin: 0;">Notebook AI</h1>
+                    <p style="font-size: 12px; opacity: 0.9; margin: 0;">Full AI Generator</p>
                 </div>
             </div>
+            <button onclick="document.getElementById('settings-modal').style.display='flex'" style="background: rgba(255,255,255,0.2); border: none; width: 40px; height: 40px; border-radius: 50%; color: white; cursor: pointer;">
+                <i class="fas fa-cog"></i>
+            </button>
         </header>
 
         <main style="padding: 20px;">
-            
             <div class="card" style="padding: 24px; margin-bottom: 20px;">
                 <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #1e293b;">
-                    <i class="fas fa-lightbulb" style="color: #fbbf24; margin-right: 8px;"></i>
-                    What should we create?
+                    <i class="fas fa-magic" style="color: #fbbf24; margin-right: 8px;"></i>
+                    Create an Explainer
                 </h2>
-                <p style="font-size: 14px; color: #64748b; margin-bottom: 20px;">
-                    Enter your content. Our AI will generate an animated video with captions.
+                <p style="font-size: 14px; color: #64748b; margin-bottom: 16px;">
+                    Enter any topic. Gemini will write a script, generate images for each scene, and create a narrated video.
                 </p>
 
                 <textarea 
                     id="content-input" 
-                    placeholder="Enter your content here..."
-                    style="width: 100%; height: 120px; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; resize: vertical; font-family: inherit; margin-bottom: 20px; line-height: 1.6;"></textarea>
+                    placeholder="Enter your topic here... e.g. 'How compound interest works' or 'A startup pitch for a sustainable coffee cup'"
+                    style="width: 100%; height: 120px; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; resize: vertical; margin-bottom: 20px;"></textarea>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 10px;">Video Style</label>
-                    <div style="display: flex; gap: 10px;">
-                        <button onclick="setStyle('professional')" class="style-btn active" data-style="professional" style="flex: 1; padding: 14px; border: 2px solid #e2e8f0; background: white; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500;">
-                            <i class="fas fa-briefcase" style="display: block; margin-bottom: 6px; font-size: 18px;"></i>
-                            Professional
-                        </button>
-                        <button onclick="setStyle('casual')" class="style-btn" data-style="casual" style="flex: 1; padding: 14px; border: 2px solid #e2e8f0; background: white; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500;">
-                            <i class="fas fa-coffee" style="display: block; margin-bottom: 6px; font-size: 18px;"></i>
-                            Casual
-                        </button>
-                        <button onclick="setStyle('energetic')" class="style-btn" data-style="energetic" style="flex: 1; padding: 14px; border: 2px solid #e2e8f0; background: white; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500;">
-                            <i class="fas fa-bolt" style="display: block; margin-bottom: 6px; font-size: 18px;"></i>
-                            Energetic
-                        </button>
-                    </div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Voice Speed</label>
+                    <select id="speed" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: white;">
+                        <option value="0.9">Slow & Clear</option>
+                        <option value="1" selected>Normal</option>
+                        <option value="1.1">Fast</option>
+                    </select>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
-                    <div>
-                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Duration</label>
-                        <select id="duration" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: white;">
-                            <option value="10">10 seconds</option>
-                            <option value="15" selected>15 seconds</option>
-                            <option value="20">20 seconds</option>
-                            <option value="30">30 seconds</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Speed</label>
-                        <select id="speed" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: white;">
-                            <option value="slow">Slow</option>
-                            <option value="normal" selected>Normal</option>
-                            <option value="fast">Fast</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button onclick="generateVideo()" id="generate-btn" class="btn-primary" style="width: 100%; padding: 18px; border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer;">
-                    <i class="fas fa-magic" style="margin-right: 8px;"></i>
-                    Create AI Video
+                <button onclick="startVideoGeneration()" id="generate-btn" class="btn-primary" style="width: 100%; padding: 18px; border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer;">
+                    <i class="fas fa-film" style="margin-right: 8px;"></i>
+                    Generate Full AI Video
                 </button>
 
                 <div id="progress-container" style="display: none; margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span id="progress-text" style="font-size: 13px; color: #64748b;">Initializing...</span>
-                        <span id="progress-percent" style="font-size: 13px; font-weight: 600; color: #7c3aed;">0%</span>
+                        <span id="progress-text" style="font-size: 13px; color: #64748b; font-weight: 500;">Initializing...</span>
+                        <span id="progress-percent" style="font-size: 13px; font-weight: 700; color: #7c3aed;">0%</span>
                     </div>
                     <div class="progress-bar">
                         <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
                     </div>
-                </div>
-            </div>
-
-            <div class="card" style="padding: 20px; margin-bottom: 20px; background: linear-gradient(135deg, #fef3c7, #fde68a); border: none;">
-                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #92400e;">
-                    <i class="fas fa-star" style="margin-right: 6px;"></i>
-                    Quick Templates
-                </h3>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button onclick="loadTemplate('pitch')" style="text-align: left; padding: 14px; background: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px;">
-                        <i class="fas fa-rocket" style="color: #7c3aed; margin-right: 10px;"></i>
-                        Startup Investor Pitch
-                    </button>
-                    <button onclick="loadTemplate('product')" style="text-align: left; padding: 14px; background: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px;">
-                        <i class="fas fa-box-open" style="color: #7c3aed; margin-right: 10px;"></i>
-                        Product Demo Video
-                    </button>
-                    <button onclick="loadTemplate('training')" style="text-align: left; padding: 14px; background: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px;">
-                        <i class="fas fa-chalkboard-teacher" style="color: #7c3aed; margin-right: 10px;"></i>
-                        Training & Onboarding
-                    </button>
                 </div>
             </div>
 
@@ -179,27 +128,22 @@
                         Your Video
                     </h3>
                     
-                    <!-- Hidden canvas for recording -->
                     <canvas id="recording-canvas" width="640" height="360" style="display: none;"></canvas>
-                    
-                    <!-- Visible preview canvas -->
-                    <canvas id="preview-canvas" width="640" height="360" style="width: 100%; border-radius: 12px; background: #1e293b;"></canvas>
-                    
-                    <!-- Video element for playback -->
+                    <canvas id="preview-canvas" width="640" height="360" style="width: 100%; border-radius: 12px; background: #000;"></canvas>
                     <video id="video-player" style="display: none; width: 100%; border-radius: 12px;" controls></video>
                     
                     <div id="video-controls" style="display: flex; gap: 10px; margin-top: 16px;">
-                        <button onclick="previewVideo()" style="flex: 1; padding: 14px; background: #7c3aed; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 15px;">
+                        <button onclick="previewVideo()" style="flex: 1; padding: 14px; background: #7c3aed; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
                             <i class="fas fa-eye" style="margin-right: 6px;"></i>Preview
                         </button>
-                        <button onclick="downloadVideo()" id="download-btn" style="flex: 1; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 15px;">
+                        <button onclick="downloadVideo()" id="download-btn" style="flex: 1; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
                             <i class="fas fa-download" style="margin-right: 6px;"></i>Download
                         </button>
                     </div>
                     
                     <div id="play-controls" style="display: none; gap: 10px; margin-top: 16px;">
-                        <button onclick="togglePlay()" id="play-pause-btn" style="flex: 1; padding: 14px; background: #7c3aed; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 15px;">
-                            <i class="fas fa-play" style="margin-right: 6px;"></i>Play
+                        <button onclick="togglePlay()" id="play-pause-btn" style="flex: 1; padding: 14px; background: #7c3aed; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-pause" style="margin-right: 6px;"></i>Pause
                         </button>
                         <button onclick="resetVideo()" style="padding: 14px; background: #f3f4f6; border: none; border-radius: 10px; cursor: pointer; color: #64748b;">
                             <i class="fas fa-redo"></i>
@@ -211,102 +155,49 @@
             <div id="videos-section" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <h2 style="font-size: 20px; font-weight: 700; color: #1e293b;">My Videos</h2>
-                    <button onclick="clearAllVideos()" style="font-size: 13px; color: #64748b; background: none; border: none; cursor: pointer;">
-                        Clear All
-                    </button>
+                    <button onclick="clearAllVideos()" style="font-size: 13px; color: #64748b; background: none; border: none; cursor: pointer;">Clear All</button>
                 </div>
                 <div id="videos-list"></div>
             </div>
-
-            <div id="empty-state" style="text-align: center; padding: 40px 20px;">
-                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                    <i class="fas fa-film" style="font-size: 32px; color: #7c3aed;"></i>
-                </div>
-                <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 8px;">No videos yet</h3>
-                <p style="font-size: 14px; color: #64748b;">Create your first AI video above</p>
-            </div>
-
         </main>
     </div>
 
+    <!-- Settings Modal -->
+    <div id="settings-modal">
+        <div class="modal-content">
+            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">API Settings</h3>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">Enter your Gemini API key to enable true AI image generation and script writing directly in your browser.</p>
+            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Gemini API Key</label>
+            <input type="password" id="api-key-input" placeholder="AIzaSy..." style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
+            <div style="display: flex; gap: 10px;">
+                <button onclick="saveApiKey()" style="flex: 1; padding: 12px; background: #7c3aed; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save</button>
+                <button onclick="document.getElementById('settings-modal').style.display='none'" style="flex: 1; padding: 12px; background: #f1f5f9; color: #475569; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        let currentStyle = 'professional';
         let videos = JSON.parse(localStorage.getItem('notebookVideos') || '[]');
         let isGenerating = false;
         let videoBlob = null;
-        let animationId = null;
         let isPlaying = false;
-
-        const templates = {
-            pitch: `Welcome to EcoPackage Solutions.
-
-Every year, e-commerce creates 15 million tons of plastic waste. Our biodegradable packaging changes everything.
-
-Made from agricultural waste, our solution costs 30 percent less than plastic. We are not just eco-friendly, we are eco-smart.
-
-The market opportunity is 2.3 billion dollars by 2026. We have 3 letters of intent from major retailers.
-
-Join us in creating a sustainable future.`,
-
-            product: `Introducing TaskFlow Pro.
-
-Tired of project management tools that create more work than they save? Meet TaskFlow.
-
-Our AI analyzes your deadlines and suggests what to work on next. It automatically balances your team's workload.
-
-TaskFlow predicts if you will hit deadlines before you miss them. It integrates with Slack, GitHub, and 50 plus tools.
-
-Built for remote teams who want to work smarter.`,
-
-            training: `Welcome to Customer Service Excellence.
-
-Today we cover the 4 pillars of great service.
-
-Listen actively. Do not interrupt. Take notes. Confirm understanding.
-
-Empathize genuinely. Acknowledge frustration. Put yourself in their shoes.
-
-Solve efficiently. Aim for first contact resolution. Set clear expectations.
-
-Follow up proactively. Check in after 24 hours. Document everything.`
-        };
-
-        const styleConfig = {
-            professional: {
-                bgColors: ['#1e293b', '#334155'],
-                textColor: '#ffffff',
-                accentColor: '#a855f7',
-                font: 'bold 28px Inter, sans-serif'
-            },
-            casual: {
-                bgColors: ['#0f766e', '#14b8a6'],
-                textColor: '#ffffff',
-                accentColor: '#fbbf24',
-                font: 'bold 28px Inter, sans-serif'
-            },
-            energetic: {
-                bgColors: ['#7c3aed', '#a855f7'],
-                textColor: '#ffffff',
-                accentColor: '#fbbf24',
-                font: 'bold 32px Inter, sans-serif'
-            }
-        };
+        let currentVideoData = null;
 
         document.addEventListener('DOMContentLoaded', () => {
+            const key = localStorage.getItem('geminiApiKey');
+            if (key) document.getElementById('api-key-input').value = key;
             displayVideos();
         });
 
-        function setStyle(style) {
-            currentStyle = style;
-            document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`[data-style="${style}"]`).classList.add('active');
+        function saveApiKey() {
+            const key = document.getElementById('api-key-input').value.trim();
+            localStorage.setItem('geminiApiKey', key);
+            document.getElementById('settings-modal').style.display = 'none';
+            alert('API Key saved securely in your browser!');
         }
 
-        function loadTemplate(type) {
-            document.getElementById('content-input').value = templates[type];
-            if (type === 'pitch') setStyle('professional');
-            if (type === 'product') setStyle('energetic');
-            if (type === 'training') setStyle('casual');
+        function getApiKey() {
+            return localStorage.getItem('geminiApiKey');
         }
 
         function updateProgress(text, percent) {
@@ -315,401 +206,369 @@ Follow up proactively. Check in after 24 hours. Document everything.`
             document.getElementById('progress-fill').style.width = percent + '%';
         }
 
-        async function generateVideo() {
-            const content = document.getElementById('content-input').value.trim();
-            if (!content) {
-                alert('Please enter some content!');
+        // Call Gemini for Script
+        async function generateScript(topic) {
+            const apiKey = getApiKey();
+            const prompt = `You are a video producer. Create a 4-slide explainer video script about: "${topic}".
+            Return ONLY a valid JSON array of objects. Do not include markdown formatting or backticks.
+            Format: [{"narration": "What the narrator says (2 short sentences max)", "imagePrompt": "A highly detailed, cinematic prompt for an AI image generator representing this slide."}]`;
+
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+
+            if (!res.ok) throw new Error("Failed to generate script. Check your API key.");
+            const data = await res.json();
+            let text = data.candidates[0].content.parts[0].text;
+            
+            // Clean up possible markdown blocks
+            text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            return JSON.parse(text);
+        }
+
+        // Call Gemini for Image
+        async function generateImage(prompt) {
+            const apiKey = getApiKey();
+            try {
+                // Gemini 2.5 Flash supports image modality
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ role: "user", parts: [{ text: `Generate an image for a video slide: ${prompt}` }] }],
+                        generationConfig: { responseModalities: ["IMAGE"] }
+                    })
+                });
+                
+                const data = await res.json();
+                if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
+                    const b64 = data.candidates[0].content.parts[0].inlineData.data;
+                    return `data:image/jpeg;base64,${b64}`;
+                }
+            } catch (e) {
+                console.error("Gemini image failed, falling back", e);
+            }
+            return null; // Fallback handled in canvas
+        }
+
+        // Load image to HTMLImageElement
+        function loadImage(src) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = src;
+            });
+        }
+
+        async function startVideoGeneration() {
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                document.getElementById('settings-modal').style.display = 'flex';
                 return;
             }
+
+            const topic = document.getElementById('content-input').value.trim();
+            if (!topic) return alert('Please enter a topic!');
 
             if (isGenerating) return;
             isGenerating = true;
 
             const btn = document.getElementById('generate-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="margin-right: 8px;"></i>Creating Video...';
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Generating AI Video...';
 
             document.getElementById('progress-container').style.display = 'block';
             document.getElementById('video-section').style.display = 'none';
-            document.getElementById('video-player').style.display = 'none';
-            document.getElementById('preview-canvas').style.display = 'block';
 
             try {
-                const duration = parseInt(document.getElementById('duration').value);
-                const config = styleConfig[currentStyle];
+                updateProgress('Writing script with Gemini...', 10);
+                const slides = await generateScript(topic);
                 
-                updateProgress('Setting up recorder...', 10);
+                const slideImages = [];
+                for (let i = 0; i < slides.length; i++) {
+                    updateProgress(`Generating AI Image ${i+1} of ${slides.length}...`, 20 + (i * 15));
+                    const b64 = await generateImage(slides[i].imagePrompt);
+                    const imgNode = b64 ? await loadImage(b64) : null;
+                    slideImages.push(imgNode);
+                }
+
+                updateProgress('Compositing video...', 85);
                 
-                // Setup canvas
+                // Record
+                await recordVideo(slides, slideImages, topic);
+
+                updateProgress('Complete!', 100);
+                document.getElementById('video-section').style.display = 'block';
+                showNotification('Video created successfully!');
+                
+            } catch (error) {
+                console.error(error);
+                alert('Error: ' + error.message);
+            } finally {
+                isGenerating = false;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-film"></i> Generate Full AI Video';
+                setTimeout(() => { document.getElementById('progress-container').style.display = 'none'; }, 2000);
+            }
+        }
+
+        async function recordVideo(slides, images, originalTopic) {
+            return new Promise(async (resolve) => {
                 const canvas = document.getElementById('recording-canvas');
                 const previewCanvas = document.getElementById('preview-canvas');
                 const ctx = canvas.getContext('2d');
                 const previewCtx = previewCanvas.getContext('2d');
                 
-                // Setup MediaRecorder
                 const stream = canvas.captureStream(30);
-                const mediaRecorder = new MediaRecorder(stream, {
-                    mimeType: 'video/webm;codecs=vp9',
-                    videoBitsPerSecond: 5000000
-                });
-                
+                const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
                 const chunks = [];
-                mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) chunks.push(e.data);
-                };
+                
+                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+                
+                let allFrames = [];
                 
                 mediaRecorder.onstop = () => {
                     videoBlob = new Blob(chunks, { type: 'video/webm' });
                     const url = URL.createObjectURL(videoBlob);
-                    const video = document.getElementById('video-player');
-                    video.src = url;
                     
-                    // Save video
                     const videoRecord = {
                         id: Date.now(),
-                        title: content.split('\n')[0].substring(0, 60) || 'Untitled',
-                        content: content,
-                        style: currentStyle,
-                        duration: duration,
+                        title: originalTopic.substring(0, 50) || 'AI Explainer Video',
+                        slides: slides,
+                        frames: allFrames,
                         createdAt: new Date().toLocaleDateString(),
                         videoData: url
                     };
                     
-                    videos.unshift(videoRecord);
+                    currentVideoData = videoRecord;
+                    videos.unshift({ ...videoRecord, frames: [] }); // Don't save frames to localStorage
                     localStorage.setItem('notebookVideos', JSON.stringify(videos));
                     displayVideos();
-                    
-                    updateProgress('Complete!', 100);
-                    
-                    document.getElementById('video-section').style.display = 'block';
-                    showNotification('Video created successfully!');
+                    resolve();
                 };
-                
-                // Start recording
+
                 mediaRecorder.start(100);
+
+                // Simulation of time: 4 seconds per slide (in reality, syncs to audio length, but client-side audio capture is tricky)
+                const framesPerSlide = 30 * 4; 
                 
-                // Parse content into slides
-                const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
-                const totalFrames = duration * 30;
-                const framesPerSentence = Math.floor(totalFrames / sentences.length);
-                
-                let frameCount = 0;
-                let currentSentenceIndex = 0;
-                
-                function drawFrame() {
-                    const progress = frameCount / totalFrames;
-                    const sentenceIndex = Math.min(Math.floor(progress * sentences.length), sentences.length - 1);
-                    const sentence = sentences[sentenceIndex] || content.substring(0, 100);
+                for (let i = 0; i < slides.length; i++) {
+                    const slide = slides[i];
+                    const img = images[i];
                     
-                    // Background
-                    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-                    gradient.addColorStop(0, config.bgColors[0]);
-                    gradient.addColorStop(1, config.bgColors[1]);
-                    ctx.fillStyle = gradient;
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    // Decorative shapes
-                    ctx.save();
-                    ctx.globalAlpha = 0.1;
-                    const time = frameCount / 30;
-                    for (let i = 0; i < 3; i++) {
-                        const x = ((time * 50 + i * 200) % (canvas.width + 100)) - 50;
-                        const y = canvas.height / 2 + Math.sin(time + i) * 30;
-                        ctx.beginPath();
-                        ctx.arc(x, y, 80, 0, Math.PI * 2);
-                        ctx.fillStyle = 'white';
-                        ctx.fill();
-                    }
-                    ctx.restore();
-                    
-                    // Text
-                    ctx.fillStyle = config.textColor;
-                    ctx.font = config.font;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    // Word wrap
-                    const words = sentence.trim().split(' ');
-                    const maxWidth = canvas.width - 80;
-                    const lineHeight = 40;
-                    let line = '';
-                    let lines = [];
-                    
-                    for (let word of words) {
-                        const testLine = line + word + ' ';
-                        const metrics = ctx.measureText(testLine);
-                        if (metrics.width > maxWidth && line !== '') {
-                            lines.push(line.trim());
-                            line = word + ' ';
+                    for (let f = 0; f < framesPerSlide; f++) {
+                        const progress = f / framesPerSlide;
+                        
+                        // Clear
+                        ctx.fillStyle = '#0f172a';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Draw image with Ken Burns pan/zoom effect
+                        if (img) {
+                            const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+                            const baseW = img.width * scale;
+                            const baseH = img.height * scale;
+                            // Zoom slowly from 1.05 to 1.0
+                            const zoom = 1.05 - (progress * 0.05); 
+                            const dw = baseW * zoom;
+                            const dh = baseH * zoom;
+                            const dx = (canvas.width - dw) / 2;
+                            const dy = (canvas.height - dh) / 2;
+                            
+                            ctx.drawImage(img, dx, dy, dw, dh);
                         } else {
-                            line = testLine;
+                            // Fallback gradient if Gemini image generation failed
+                            const grad = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+                            grad.addColorStop(0, '#4c1d95');
+                            grad.addColorStop(1, '#1e1b4b');
+                            ctx.fillStyle = grad;
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
                         }
-                    }
-                    lines.push(line.trim());
-                    
-                    // Draw text with animation
-                    const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
-                    lines.forEach((line, i) => {
-                        const alpha = Math.min(1, (frameCount % 30) / 10);
-                        ctx.globalAlpha = alpha;
-                        ctx.fillText(line, canvas.width / 2, startY + i * lineHeight);
-                    });
-                    ctx.globalAlpha = 1;
-                    
-                    // Progress bar
-                    ctx.fillStyle = 'rgba(255,255,255,0.2)';
-                    ctx.fillRect(60, canvas.height - 40, canvas.width - 120, 6);
-                    ctx.fillStyle = config.accentColor;
-                    ctx.fillRect(60, canvas.height - 40, (canvas.width - 120) * progress, 6);
-                    
-                    // Copy to preview canvas
-                    previewCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
-                    
-                    frameCount++;
-                    
-                    if (frameCount < totalFrames) {
-                        updateProgress(`Rendering frame ${frameCount}/${totalFrames}...`, 20 + (frameCount / totalFrames) * 70);
-                        requestAnimationFrame(drawFrame);
-                    } else {
-                        mediaRecorder.stop();
+
+                        // Bottom gradient for text readability
+                        const grad = ctx.createLinearGradient(0, canvas.height - 100, 0, canvas.height);
+                        grad.addColorStop(0, 'rgba(0,0,0,0)');
+                        grad.addColorStop(1, 'rgba(0,0,0,0.8)');
+                        ctx.fillStyle = grad;
+                        ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+
+                        // Draw Captions
+                        ctx.fillStyle = 'white';
+                        ctx.font = '600 18px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+                        
+                        // Word wrap
+                        const words = slide.narration.split(' ');
+                        let line = '';
+                        let lines = [];
+                        for (let word of words) {
+                            if (ctx.measureText(line + word + ' ').width > canvas.width - 40) {
+                                lines.push(line);
+                                line = word + ' ';
+                            } else {
+                                line += word + ' ';
+                            }
+                        }
+                        lines.push(line);
+                        
+                        lines.forEach((l, idx) => {
+                            ctx.fillText(l, canvas.width / 2, canvas.height - 20 - ((lines.length - 1 - idx) * 24));
+                        });
+
+                        // Copy to preview and save frame
+                        previewCtx.drawImage(canvas, 0, 0);
+                        if (f % 15 === 0) { // save 2 fps for later preview
+                            const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                            allFrames.push(dataUrl);
+                        }
+                        
+                        await new Promise(r => setTimeout(r, 1000/30));
                     }
                 }
                 
-                updateProgress('Recording video...', 20);
-                drawFrame();
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error creating video: ' + error.message);
-                isGenerating = false;
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-magic" style="margin-right: 8px;"></i>Create AI Video';
-                document.getElementById('progress-container').style.display = 'none';
-            }
+                mediaRecorder.stop();
+            });
         }
+
+        let playbackTimeout;
+        let slideIndex = 0;
 
         function previewVideo() {
-            const video = document.getElementById('video-player');
-            const previewCanvas = document.getElementById('preview-canvas');
-            const controls = document.getElementById('video-controls');
-            const playControls = document.getElementById('play-controls');
+            if (!currentVideoData) return;
             
-            previewCanvas.style.display = 'none';
-            video.style.display = 'block';
-            controls.style.display = 'none';
-            playControls.style.display = 'flex';
+            document.getElementById('preview-canvas').style.display = 'none';
+            document.getElementById('video-player').style.display = 'block';
+            document.getElementById('video-controls').style.display = 'none';
+            document.getElementById('play-controls').style.display = 'flex';
             
-            video.play();
-            isPlaying = true;
-            updatePlayButton();
-            
-            // Also speak the content
-            speakContent();
+            slideIndex = 0;
+            playSlideChain();
         }
 
-        function speakContent() {
-            const content = document.getElementById('content-input').value.trim();
-            if (!content || !window.speechSynthesis) return;
+        function playSlideChain() {
+            if (slideIndex >= currentVideoData.slides.length) {
+                resetVideo();
+                return;
+            }
+
+            isPlaying = true;
+            updatePlayBtn();
             
+            const slide = currentVideoData.slides[slideIndex];
+            const speed = parseFloat(document.getElementById('speed').value);
+            
+            // TTS
             window.speechSynthesis.cancel();
-            
-            const utterance = new SpeechSynthesisUtterance(content);
-            const speed = document.getElementById('speed').value;
-            utterance.rate = speed === 'slow' ? 0.8 : speed === 'fast' ? 1.2 : 1;
-            utterance.pitch = currentStyle === 'energetic' ? 1.1 : 1;
+            const utterance = new SpeechSynthesisUtterance(slide.narration);
+            utterance.rate = speed;
             
             const voices = window.speechSynthesis.getVoices();
-            const preferredVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
-                                  voices.find(v => v.lang === 'en-US');
-            if (preferredVoice) utterance.voice = preferredVoice;
+            const voice = voices.find(v => v.name.includes('Google US')) || voices.find(v => v.lang === 'en-US');
+            if (voice) utterance.voice = voice;
+
+            // Sync visual frames
+            const framesPerSlide = currentVideoData.frames.length / currentVideoData.slides.length;
+            const startFrame = Math.floor(slideIndex * framesPerSlide);
+            const videoElement = document.getElementById('video-player');
             
+            // Set the video source to play the webm blob
+            if (slideIndex === 0) {
+                videoElement.src = currentVideoData.videoData;
+                videoElement.play();
+            }
+
+            utterance.onend = () => {
+                slideIndex++;
+                if (isPlaying) playSlideChain();
+            };
+
             window.speechSynthesis.speak(utterance);
         }
 
         function togglePlay() {
-            const video = document.getElementById('video-player');
             if (isPlaying) {
-                video.pause();
                 window.speechSynthesis.pause();
+                document.getElementById('video-player').pause();
+                isPlaying = false;
             } else {
-                video.play();
                 window.speechSynthesis.resume();
-                if (video.paused && video.currentTime === 0) {
-                    speakContent();
-                }
+                document.getElementById('video-player').play();
+                isPlaying = true;
             }
-            isPlaying = !isPlaying;
-            updatePlayButton();
+            updatePlayBtn();
         }
 
-        function updatePlayButton() {
-            const btn = document.getElementById('play-pause-btn');
-            if (isPlaying) {
-                btn.innerHTML = '<i class="fas fa-pause" style="margin-right: 6px;"></i>Pause';
-            } else {
-                btn.innerHTML = '<i class="fas fa-play" style="margin-right: 6px;"></i>Play';
-            }
+        function updatePlayBtn() {
+            document.getElementById('play-pause-btn').innerHTML = isPlaying 
+                ? '<i class="fas fa-pause"></i> Pause' 
+                : '<i class="fas fa-play"></i> Play';
         }
 
         function resetVideo() {
-            const video = document.getElementById('video-player');
-            const previewCanvas = document.getElementById('preview-canvas');
-            const controls = document.getElementById('video-controls');
-            const playControls = document.getElementById('play-controls');
-            
-            video.pause();
-            video.currentTime = 0;
             window.speechSynthesis.cancel();
-            
-            video.style.display = 'none';
-            previewCanvas.style.display = 'block';
-            controls.style.display = 'flex';
-            playControls.style.display = 'none';
+            document.getElementById('video-player').pause();
             isPlaying = false;
+            
+            document.getElementById('video-player').style.display = 'none';
+            document.getElementById('preview-canvas').style.display = 'block';
+            document.getElementById('video-controls').style.display = 'flex';
+            document.getElementById('play-controls').style.display = 'none';
         }
 
         function downloadVideo() {
-            if (!videoBlob) {
-                alert('No video to download');
-                return;
-            }
-            
-            const url = URL.createObjectURL(videoBlob);
+            if (!videoBlob) return;
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `notebook-video-${Date.now()}.webm`;
-            document.body.appendChild(a);
+            a.href = URL.createObjectURL(videoBlob);
+            a.download = `AI-Explainer-${Date.now()}.webm`;
             a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showNotification('Video downloaded!');
+            showNotification('Video downloaded successfully!');
         }
 
         function displayVideos() {
-            const section = document.getElementById('videos-section');
             const list = document.getElementById('videos-list');
-            const empty = document.getElementById('empty-state');
-
             if (videos.length === 0) {
-                section.style.display = 'none';
-                empty.style.display = 'block';
+                document.getElementById('videos-section').style.display = 'none';
                 return;
             }
 
-            section.style.display = 'block';
-            empty.style.display = 'none';
-
-            const styleColors = {
-                professional: 'linear-gradient(135deg, #1e293b, #334155)',
-                casual: 'linear-gradient(135deg, #0f766e, #14b8a6)',
-                energetic: 'linear-gradient(135deg, #7c3aed, #a855f7)'
-            };
-
-            list.innerHTML = videos.map((video, index) => `
-                <div class="card" style="padding: 16px; margin-bottom: 16px;">
-                    <div style="display: flex; gap: 16px;">
-                        <div style="width: 100px; height: 56px; background: ${styleColors[video.style]}; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer;" onclick="playSavedVideo(${index})">
-                            <i class="fas fa-play" style="color: white; font-size: 18px;"></i>
-                        </div>
-                        <div style="flex: 1; min-width: 0;">
-                            <h4 style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${video.title}</h4>
-                            <div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">
-                                <span style="text-transform: capitalize;">${video.style}</span> • ${video.duration}s • ${video.createdAt}
-                            </div>
-                            <button onclick="deleteVideo(${video.id})" style="padding: 6px 12px; background: #fee2e2; border: none; border-radius: 6px; cursor: pointer; color: #dc2626; font-size: 12px;">
-                                <i class="fas fa-trash" style="margin-right: 4px;"></i>Delete
-                            </button>
-                        </div>
+            document.getElementById('videos-section').style.display = 'block';
+            list.innerHTML = videos.map(video => `
+                <div class="card" style="padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <h4 style="font-size: 14px; font-weight: 600; color: #1e293b;">${video.title}</h4>
+                        <span style="font-size: 11px; color: #64748b;">${video.createdAt}</span>
                     </div>
+                    <button onclick="deleteVideo(${video.id})" style="color: #ef4444; background: #fee2e2; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer;">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             `).join('');
         }
 
-        function playSavedVideo(index) {
-            const video = videos[index];
-            if (video && video.videoData) {
-                const modal = document.createElement('div');
-                modal.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(0,0,0,0.95);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 20px;
-                    z-index: 1000;
-                `;
-                
-                modal.innerHTML = `
-                    <div style="width: 100%; max-width: 640px;">
-                        <video src="${video.videoData}" controls autoplay style="width: 100%; border-radius: 12px;"></video>
-                        <div style="text-align: center; margin-top: 16px;">
-                            <button onclick="this.closest('.modal').remove()" style="padding: 12px 24px; background: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                `;
-                modal.className = 'modal';
-                modal.onclick = (e) => {
-                    if (e.target === modal) modal.remove();
-                };
-                document.body.appendChild(modal);
-                
-                // Speak content
-                setTimeout(() => {
-                    const utterance = new SpeechSynthesisUtterance(video.content);
-                    utterance.rate = 1;
-                    window.speechSynthesis.speak(utterance);
-                }, 100);
-            }
-        }
-
         function deleteVideo(id) {
-            if (confirm('Delete this video?')) {
-                videos = videos.filter(v => v.id !== id);
-                localStorage.setItem('notebookVideos', JSON.stringify(videos));
-                displayVideos();
-            }
+            videos = videos.filter(v => v.id !== id);
+            localStorage.setItem('notebookVideos', JSON.stringify(videos));
+            displayVideos();
         }
 
         function clearAllVideos() {
-            if (confirm('Delete all videos?')) {
-                videos = [];
-                localStorage.removeItem('notebookVideos');
-                displayVideos();
-            }
+            videos = [];
+            localStorage.removeItem('notebookVideos');
+            displayVideos();
         }
 
-        function showNotification(message) {
-            const notif = document.createElement('div');
-            notif.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #1e293b;
-                color: white;
-                padding: 12px 24px;
-                border-radius: 8px;
-                font-size: 14px;
-                font-weight: 500;
-                z-index: 1000;
-            `;
-            notif.textContent = message;
-            document.body.appendChild(notif);
-            setTimeout(() => notif.remove(), 3000);
+        function showNotification(msg) {
+            alert(msg); // simple fallback
         }
-
-        // Load voices
+        
+        // Load voices early
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = () => {
-                window.speechSynthesis.getVoices();
-            };
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
         }
     </script>
 </body>
