@@ -176,6 +176,44 @@
         </div>
     </div>
 
+    <script type="module">
+        import { KokoroTTS } from "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.js";
+        
+        let _kokoroTTS = null;
+        let _kokoroLoading = null;
+
+        window.getKokoro = async function() {
+            if (_kokoroTTS) return _kokoroTTS;
+            if (_kokoroLoading) return _kokoroLoading;
+            
+            // Show loading UI
+            updateProgress('Loading neural voice model (Kokoro)...', 15);
+            
+            _kokoroLoading = (async () => {
+                const tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0", {
+                    dtype: "q8",
+                    device: "wasm",
+                });
+                _kokoroTTS = tts;
+                _kokoroLoading = null;
+                return tts;
+            })();
+            return _kokoroLoading;
+        }
+
+        window.generateKokoroAudio = async function(text) {
+            try {
+                const tts = await window.getKokoro();
+                const output = await tts.generate(text, { voice: "af_heart" });
+                const blob = await output.toBlob();
+                return URL.createObjectURL(blob);
+            } catch (e) {
+                console.error("Kokoro TTS failed:", e);
+                return null;
+            }
+        }
+    </script>
+
     <script>
         let videos = JSON.parse(localStorage.getItem('notebookVideos') || '[]');
         let isGenerating = false;
@@ -229,15 +267,24 @@
         }
 
         // Call Gemini for Image
-        async function generateImage(prompt) {
+        async function generateImage(prompt, slideNumber) {
             const apiKey = getApiKey();
             try {
+                const fullPrompt = `Create a vibrant, eye-catching educational poster illustration for slide ${slideNumber} of a financial literacy lesson.
+Scene: ${prompt}
+Style requirements:
+- Bright, bold colors with clean lines
+- Educational infographic style — clear and engaging
+- MoneyBot character if mentioned: friendly white/silver robot, neon green glowing eyes, coin-shaped antenna, enthusiastic pose
+- No text overlays, no watermarks, no logos
+- Suitable for students ages 12-18`;
+
                 // Use Imagen 4.0 Fast via predict endpoint
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        instances: [{ prompt: prompt }],
+                        instances: [{ prompt: fullPrompt }],
                         parameters: { sampleCount: 1 }
                     })
                 });
@@ -292,9 +339,14 @@
                 const slideImages = [];
                 for (let i = 0; i < slides.length; i++) {
                     updateProgress(`Generating AI Image ${i+1} of ${slides.length}...`, 20 + (i * 15));
-                    const b64 = await generateImage(slides[i].imagePrompt);
+                    const b64 = await generateImage(slides[i].imagePrompt, i + 1);
                     const imgNode = b64 ? await loadImage(b64) : null;
                     slideImages.push(imgNode);
+                    
+                    // Generate audio for slide
+                    if (window.generateKokoroAudio) {
+                        slides[i].audioUrl = await window.generateKokoroAudio(slides[i].narration);
+                    }
                 }
 
                 updateProgress('Compositing video...', 85);
@@ -451,6 +503,8 @@
             playSlideChain();
         }
 
+        let currentAudio = null;
+
         function playSlideChain() {
             if (slideIndex >= currentVideoData.slides.length) {
                 resetVideo();
@@ -463,15 +517,6 @@
             const slide = currentVideoData.slides[slideIndex];
             const speed = parseFloat(document.getElementById('speed').value);
             
-            // TTS
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(slide.narration);
-            utterance.rate = speed;
-            
-            const voices = window.speechSynthesis.getVoices();
-            const voice = voices.find(v => v.name.includes('Google US')) || voices.find(v => v.lang === 'en-US');
-            if (voice) utterance.voice = voice;
-
             // Sync visual frames
             const framesPerSlide = currentVideoData.frames.length / currentVideoData.slides.length;
             const startFrame = Math.floor(slideIndex * framesPerSlide);
@@ -483,21 +528,43 @@
                 videoElement.play();
             }
 
-            utterance.onend = () => {
-                slideIndex++;
-                if (isPlaying) playSlideChain();
-            };
+            if (slide.audioUrl) {
+                if (currentAudio) currentAudio.pause();
+                currentAudio = new Audio(slide.audioUrl);
+                currentAudio.playbackRate = speed;
+                currentAudio.onended = () => {
+                    slideIndex++;
+                    if (isPlaying) playSlideChain();
+                };
+                currentAudio.play();
+            } else {
+                // Fallback to Web Speech API
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(slide.narration);
+                utterance.rate = speed;
+                
+                const voices = window.speechSynthesis.getVoices();
+                const voice = voices.find(v => v.name.includes('Google US')) || voices.find(v => v.lang === 'en-US');
+                if (voice) utterance.voice = voice;
 
-            window.speechSynthesis.speak(utterance);
+                utterance.onend = () => {
+                    slideIndex++;
+                    if (isPlaying) playSlideChain();
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }
         }
 
         function togglePlay() {
             if (isPlaying) {
-                window.speechSynthesis.pause();
+                if (currentAudio) currentAudio.pause();
+                else window.speechSynthesis.pause();
                 document.getElementById('video-player').pause();
                 isPlaying = false;
             } else {
-                window.speechSynthesis.resume();
+                if (currentAudio) currentAudio.play();
+                else window.speechSynthesis.resume();
                 document.getElementById('video-player').play();
                 isPlaying = true;
             }
@@ -511,6 +578,10 @@
         }
 
         function resetVideo() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
             window.speechSynthesis.cancel();
             document.getElementById('video-player').pause();
             isPlaying = false;
