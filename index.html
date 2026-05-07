@@ -204,7 +204,7 @@
         window.generateKokoroAudio = async function(text) {
             try {
                 const tts = await window.getKokoro();
-                const output = await tts.generate(text, { voice: "af_heart" });
+                const output = await tts.generate(text, { voice: "af_bella" });
                 const blob = await output.toBlob();
                 return URL.createObjectURL(blob);
             } catch (e) {
@@ -247,9 +247,17 @@
         // Call Gemini for Script
         async function generateScript(topic) {
             const apiKey = getApiKey();
-            const prompt = `You are a video producer. Create a 4-slide explainer video script about: "${topic}".
-            Return ONLY a valid JSON array of objects. Do not include markdown formatting or backticks.
-            Format: [{"narration": "What the narrator says (2 short sentences max)", "imagePrompt": "A highly detailed, cinematic prompt for an AI image generator representing this slide."}]`;
+            const prompt = `You are MoneyBot — a friendly, energetic financial literacy teacher for students.
+
+Create a 4-slide explainer lesson about: "${topic}"
+
+Return ONLY a valid JSON array of objects (no markdown, no code fences) with this exact structure:
+[
+  {
+    "narration": "What MoneyBot says out loud for this slide (2-4 engaging sentences, conversational and student-friendly)",
+    "imagePrompt": "Vivid description for an illustration: MoneyBot (friendly white/silver robot, neon green glowing eyes, coin-shaped antenna, enthusiastic pose) interacting with [scene related to slide content]. Bright, colorful, educational poster style."
+  }
+]`;
 
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`, {
                 method: 'POST',
