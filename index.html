@@ -1,655 +1,776 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#7c3aed">
-    <title>Notebook AI Video | Turn Ideas Into Videos</title>
+    <meta name="theme-color" content="#0a0a0a">
+    <title>MoneyBot Studio | AI Explainer Video</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#0a0a0a',
+                        surface: '#171717',
+                        primary: '#00ff88',
+                        primaryDark: '#00cc6a',
+                        border: '#262626',
+                        text: '#f5f5f5',
+                        textMuted: '#a3a3a3'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            margin: 0;
+        body { background-color: #0a0a0a; color: #f5f5f5; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #404040; }
+        
+        .glass-panel {
+            background: rgba(23, 23, 23, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid #262626;
+            border-radius: 16px;
         }
-        .app-container {
-            max-width: 480px;
-            margin: 0 auto;
-            min-height: 100vh;
-            background: #f8fafc;
-            position: relative;
-        }
+        
         .btn-primary {
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
-            transition: all 0.2s;
+            background: #00ff88;
+            color: #0a0a0a;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
         }
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.4);
+            background: #00cc6a;
         }
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+        
+        .btn-secondary {
+            background: #262626;
+            color: #f5f5f5;
+            transition: all 0.2s ease;
+            border: 1px solid #404040;
         }
-        .card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        .btn-secondary:hover { background: #404040; }
+
+        input, textarea, select {
+            background: #0a0a0a;
+            border: 1px solid #262626;
+            color: #f5f5f5;
+            transition: border-color 0.2s ease;
         }
-        .progress-bar {
-            height: 4px;
-            background: #e2e8f0;
-            border-radius: 2px;
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 0 1px rgba(0, 255, 136, 0.2);
+        }
+
+        /* Player Styles */
+        #player-container {
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 12px;
             overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 1px solid #262626;
         }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #7c3aed, #a855f7);
-            transition: width 0.3s;
+        #video-canvas { width: 100%; height: 100%; object-fit: cover; }
+        
+        #caption-bar {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(4px);
+            padding: 16px 24px;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        /* Modal Styles */
-        #settings-modal {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 2000;
-            display: none; align-items: center; justify-content: center; padding: 20px;
+        #caption-bar.visible { transform: translateY(0); }
+        
+        #play-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: opacity 0.2s;
         }
-        .modal-content {
-            background: white; width: 100%; max-width: 400px;
-            border-radius: 16px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        #play-overlay:hover { background: rgba(0,0,0,0.5); }
+        #play-overlay i {
+            font-size: 64px; color: #00ff88;
+            filter: drop-shadow(0 0 20px rgba(0,255,136,0.5));
+            transition: transform 0.2s;
+        }
+        #play-overlay:hover i { transform: scale(1.1); }
+
+        .typewriter::after {
+            content: '|';
+            animation: blink 1s step-start infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Thumbnails */
+        .slide-thumb {
+            width: 80px; height: 45px;
+            background: #262626;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .slide-thumb.active { border-color: #00ff88; }
+        .slide-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Loader */
+        .progress-ring {
+            width: 60px; height: 60px;
+        }
+        .progress-ring circle {
+            transition: stroke-dashoffset 0.3s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <header style="background: linear-gradient(135deg, #7c3aed, #a855f7); padding: 24px 20px; color: white; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-video" style="font-size: 24px;"></i>
+    <!-- Top Nav -->
+    <nav class="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/30">
+                    <i class="fas fa-robot text-primary"></i>
                 </div>
-                <div>
-                    <h1 style="font-size: 20px; font-weight: 800; margin: 0;">Notebook AI</h1>
-                    <p style="font-size: 12px; opacity: 0.9; margin: 0;">Full AI Generator</p>
-                </div>
+                <span class="font-bold text-lg tracking-tight">MoneyBot <span class="text-textMuted font-normal">Studio</span></span>
             </div>
-            <button onclick="document.getElementById('settings-modal').style.display='flex'" style="background: rgba(255,255,255,0.2); border: none; width: 40px; height: 40px; border-radius: 50%; color: white; cursor: pointer;">
-                <i class="fas fa-cog"></i>
+            <button onclick="document.getElementById('settings-modal').style.display='flex'" class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+                <i class="fas fa-key text-primary"></i> API Settings
             </button>
-        </header>
+        </div>
+    </nav>
 
-        <main style="padding: 20px;">
-            <div class="card" style="padding: 24px; margin-bottom: 20px;">
-                <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #1e293b;">
-                    <i class="fas fa-magic" style="color: #fbbf24; margin-right: 8px;"></i>
-                    Create an Explainer
-                </h2>
-                <p style="font-size: 14px; color: #64748b; margin-bottom: 16px;">
-                    Enter any topic. Gemini will write a script, generate images for each scene, and create a narrated video.
-                </p>
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Controls -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <div class="glass-panel p-6">
+                    <h2 class="text-lg font-bold mb-2 flex items-center gap-2">
+                        <i class="fas fa-pen-nib text-primary"></i> Topic & Script
+                    </h2>
+                    <p class="text-sm text-textMuted mb-4">Enter a financial concept. MoneyBot will write the script and generate custom graphics.</p>
+                    
+                    <textarea 
+                        id="topic-input" 
+                        class="w-full h-32 p-4 rounded-xl text-sm mb-4 resize-none"
+                        placeholder="e.g. How does compound interest actually make you wealthy over 30 years?"></textarea>
 
-                <textarea 
-                    id="content-input" 
-                    placeholder="Enter your topic here... e.g. 'How compound interest works' or 'A startup pitch for a sustainable coffee cup'"
-                    style="width: 100%; height: 120px; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; resize: vertical; margin-bottom: 20px;"></textarea>
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <div>
+                            <label class="block text-xs font-semibold text-textMuted mb-2 uppercase tracking-wider">Voice Speed</label>
+                            <select id="voice-speed" class="w-full p-2.5 rounded-lg text-sm">
+                                <option value="0.9">Paced & Clear</option>
+                                <option value="1" selected>Natural</option>
+                                <option value="1.1">Energetic (Fast)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-textMuted mb-2 uppercase tracking-wider">Slides</label>
+                            <select id="slide-count" class="w-full p-2.5 rounded-lg text-sm">
+                                <option value="3">3 Slides (Short)</option>
+                                <option value="4" selected>4 Slides (Standard)</option>
+                                <option value="5">5 Slides (Deep)</option>
+                            </select>
+                        </div>
+                    </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Voice Speed</label>
-                    <select id="speed" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: white;">
-                        <option value="0.9">Slow & Clear</option>
-                        <option value="1" selected>Normal</option>
-                        <option value="1.1">Fast</option>
-                    </select>
+                    <button id="generate-btn" onclick="generateLesson()" class="btn-primary w-full py-3.5 rounded-xl font-bold text-[15px] flex items-center justify-center gap-2">
+                        <i class="fas fa-bolt"></i> Generate Explainer
+                    </button>
                 </div>
 
-                <button onclick="startVideoGeneration()" id="generate-btn" class="btn-primary" style="width: 100%; padding: 18px; border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer;">
-                    <i class="fas fa-film" style="margin-right: 8px;"></i>
-                    Generate Full AI Video
-                </button>
-
-                <div id="progress-container" style="display: none; margin-top: 20px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span id="progress-text" style="font-size: 13px; color: #64748b; font-weight: 500;">Initializing...</span>
-                        <span id="progress-percent" style="font-size: 13px; font-weight: 700; color: #7c3aed;">0%</span>
+                <!-- Status/Log Panel -->
+                <div id="status-panel" class="glass-panel p-6 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold">Generation Progress</h3>
+                        <span id="status-percentage" class="text-primary font-bold text-sm">0%</span>
                     </div>
-                    <div class="progress-bar">
-                        <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
+                    
+                    <div class="relative w-full h-2 bg-surface rounded-full overflow-hidden mb-4">
+                        <div id="status-bar" class="absolute top-0 left-0 h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+                    </div>
+
+                    <div id="status-log" class="space-y-2 text-xs text-textMuted font-mono h-32 overflow-y-auto pr-2">
+                        <!-- Logs inject here -->
+                    </div>
+                </div>
+
+                <!-- Templates -->
+                <div class="glass-panel p-6">
+                    <h3 class="text-sm font-bold mb-3 text-textMuted uppercase tracking-wider">Quick Prompts</h3>
+                    <div class="space-y-2">
+                        <button onclick="setTopic('The difference between an ETF and a Mutual Fund, explained simply.')" class="w-full text-left p-3 rounded-lg bg-surface hover:bg-border transition-colors text-sm border border-border">
+                            📈 ETF vs Mutual Fund
+                        </button>
+                        <button onclick="setTopic('Why you should start a Roth IRA at age 18 instead of 25.')" class="w-full text-left p-3 rounded-lg bg-surface hover:bg-border transition-colors text-sm border border-border">
+                            🏦 Roth IRA timeline
+                        </button>
+                        <button onclick="setTopic('The 50/30/20 budgeting rule for college students.')" class="w-full text-left p-3 rounded-lg bg-surface hover:bg-border transition-colors text-sm border border-border">
+                            📊 50/30/20 Budget
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Video Player Section -->
-            <div id="video-section" style="display: none; margin-bottom: 20px;">
-                <div class="card" style="padding: 20px;">
-                    <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #1e293b;">
-                        <i class="fas fa-play-circle" style="color: #7c3aed; margin-right: 8px;"></i>
-                        Your Video
+            <!-- Right Column: Player -->
+            <div class="lg:col-span-8 flex flex-col">
+                <div id="player-container">
+                    <canvas id="video-canvas" width="1280" height="720"></canvas>
+                    
+                    <!-- Caption Overlay -->
+                    <div id="caption-bar">
+                        <p id="caption-text" class="text-white text-xl md:text-2xl font-bold leading-snug drop-shadow-md text-center max-w-4xl mx-auto"></p>
+                    </div>
+
+                    <!-- Play Overlay -->
+                    <div id="play-overlay" onclick="togglePlay()" style="display: none;">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                </div>
+
+                <!-- Timeline / Thumbnails -->
+                <div id="timeline-container" class="mt-4 glass-panel p-3 flex gap-3 overflow-x-auto hidden">
+                    <!-- Thumbnails inject here -->
+                </div>
+
+                <!-- Action Bar -->
+                <div id="action-bar" class="mt-4 flex gap-3 hidden">
+                    <button onclick="togglePlay()" id="control-play-btn" class="btn-primary px-6 py-2.5 rounded-lg font-bold flex items-center gap-2">
+                        <i class="fas fa-play"></i> Play
+                    </button>
+                    <button onclick="downloadVideo()" id="download-btn" class="btn-secondary px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2">
+                        <i class="fas fa-download"></i> Save MP4
+                    </button>
+                    <button onclick="saveToLibrary()" class="btn-secondary px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 ml-auto">
+                        <i class="fas fa-bookmark text-primary"></i> Save to Library
+                    </button>
+                </div>
+                
+                <!-- Library -->
+                <div id="library-container" class="mt-12">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <i class="fas fa-layer-group text-primary"></i> My Lessons
                     </h3>
-                    
-                    <canvas id="recording-canvas" width="640" height="360" style="display: none;"></canvas>
-                    <canvas id="preview-canvas" width="640" height="360" style="width: 100%; border-radius: 12px; background: #000;"></canvas>
-                    <video id="video-player" style="display: none; width: 100%; border-radius: 12px;" controls></video>
-                    
-                    <div id="video-controls" style="display: flex; gap: 10px; margin-top: 16px;">
-                        <button onclick="previewVideo()" style="flex: 1; padding: 14px; background: #7c3aed; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
-                            <i class="fas fa-eye" style="margin-right: 6px;"></i>Preview
-                        </button>
-                        <button onclick="downloadVideo()" id="download-btn" style="flex: 1; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
-                            <i class="fas fa-download" style="margin-right: 6px;"></i>Download
-                        </button>
-                    </div>
-                    
-                    <div id="play-controls" style="display: none; gap: 10px; margin-top: 16px;">
-                        <button onclick="togglePlay()" id="play-pause-btn" style="flex: 1; padding: 14px; background: #7c3aed; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
-                            <i class="fas fa-pause" style="margin-right: 6px;"></i>Pause
-                        </button>
-                        <button onclick="resetVideo()" style="padding: 14px; background: #f3f4f6; border: none; border-radius: 10px; cursor: pointer; color: #64748b;">
-                            <i class="fas fa-redo"></i>
-                        </button>
+                    <div id="library-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Saved lessons inject here -->
                     </div>
                 </div>
-            </div>
 
-            <div id="videos-section" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 style="font-size: 20px; font-weight: 700; color: #1e293b;">My Videos</h2>
-                    <button onclick="clearAllVideos()" style="font-size: 13px; color: #64748b; background: none; border: none; cursor: pointer;">Clear All</button>
-                </div>
-                <div id="videos-list"></div>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
     <!-- Settings Modal -->
-    <div id="settings-modal">
-        <div class="modal-content">
-            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">API Settings</h3>
-            <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">Enter your Gemini API key to enable true AI image generation and script writing directly in your browser.</p>
-            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Gemini API Key</label>
-            <input type="password" id="api-key-input" placeholder="AIzaSy..." style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
-            <div style="display: flex; gap: 10px;">
-                <button onclick="saveApiKey()" style="flex: 1; padding: 12px; background: #7c3aed; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save</button>
-                <button onclick="document.getElementById('settings-modal').style.display='none'" style="flex: 1; padding: 12px; background: #f1f5f9; color: #475569; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[2000] hidden items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md p-6 bg-surface">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">API Settings</h3>
+                <button onclick="document.getElementById('settings-modal').style.display='none'" class="text-textMuted hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Gemini API Key</label>
+                    <input type="password" id="api-key-input" class="w-full p-3 rounded-lg" placeholder="AIzaSy...">
+                    <p class="text-xs text-textMuted mt-2">Required for generating scripts and Imagen 4.0 graphics.</p>
+                </div>
+                <button onclick="saveApiKey()" class="btn-primary w-full py-3 rounded-lg font-bold mt-4">Save Configuration</button>
             </div>
         </div>
     </div>
 
+    <!-- Hidden canvas for recording -->
+    <canvas id="record-canvas" width="1280" height="720" style="display: none;"></canvas>
+
     <script type="module">
         import { KokoroTTS } from "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.js";
         
-        let _kokoroTTS = null;
-        let _kokoroLoading = null;
+        // State
+        const state = {
+            isGenerating: false,
+            isPlaying: false,
+            currentLesson: null, // { title, slides: [{img, narration, audioUrl}] }
+            library: JSON.parse(localStorage.getItem('moneybot_library') || '[]'),
+            kokoro: null,
+            audioElement: new Audio()
+        };
 
-        window.getKokoro = async function() {
-            if (_kokoroTTS) return _kokoroTTS;
-            if (_kokoroLoading) return _kokoroLoading;
-            
-            // Show loading UI
-            updateProgress('Loading neural voice model (Kokoro)...', 15);
-            
-            _kokoroLoading = (async () => {
-                const tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0", {
-                    dtype: "q8",
-                    device: "wasm",
-                });
-                _kokoroTTS = tts;
-                _kokoroLoading = null;
-                return tts;
-            })();
-            return _kokoroLoading;
-        }
-
-        window.generateKokoroAudio = async function(text) {
-            try {
-                const tts = await window.getKokoro();
-                const output = await tts.generate(text, { voice: "af_bella" });
-                const blob = await output.toBlob();
-                return URL.createObjectURL(blob);
-            } catch (e) {
-                console.error("Kokoro TTS failed:", e);
-                return null;
-            }
-        }
-    </script>
-
-    <script>
-        let videos = JSON.parse(localStorage.getItem('notebookVideos') || '[]');
-        let isGenerating = false;
-        let videoBlob = null;
-        let isPlaying = false;
-        let currentVideoData = null;
-
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             const key = localStorage.getItem('geminiApiKey');
             if (key) document.getElementById('api-key-input').value = key;
-            displayVideos();
+            else document.getElementById('settings-modal').style.display = 'flex';
+            
+            renderLibrary();
+            initCanvas();
         });
 
-        function saveApiKey() {
+        window.setTopic = (txt) => document.getElementById('topic-input').value = txt;
+        
+        window.saveApiKey = () => {
             const key = document.getElementById('api-key-input').value.trim();
+            if(!key) return alert("Key is required");
             localStorage.setItem('geminiApiKey', key);
             document.getElementById('settings-modal').style.display = 'none';
-            alert('API Key saved securely in your browser!');
+            logMsg("API Key saved securely.");
+        };
+
+        // Logging & UI
+        function logMsg(msg, percent = null) {
+            const log = document.getElementById('status-log');
+            const entry = document.createElement('div');
+            entry.innerHTML = `<span class="text-primary mr-2">›</span> ${msg}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            
+            if (percent !== null) {
+                document.getElementById('status-percentage').innerText = `${percent}%`;
+                document.getElementById('status-bar').style.width = `${percent}%`;
+            }
         }
 
-        function getApiKey() {
-            return localStorage.getItem('geminiApiKey');
-        }
+        // --- Core Generation ---
+        window.generateLesson = async () => {
+            const topic = document.getElementById('topic-input').value.trim();
+            const apiKey = localStorage.getItem('geminiApiKey');
+            
+            if(!topic) return alert("Please enter a topic.");
+            if(!apiKey) return document.getElementById('settings-modal').style.display = 'flex';
 
-        function updateProgress(text, percent) {
-            document.getElementById('progress-text').textContent = text;
-            document.getElementById('progress-percent').textContent = percent + '%';
-            document.getElementById('progress-fill').style.width = percent + '%';
-        }
+            if(state.isGenerating) return;
+            state.isGenerating = true;
+            
+            const btn = document.getElementById('generate-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Building Lesson...';
+            
+            document.getElementById('status-panel').style.display = 'block';
+            document.getElementById('status-log').innerHTML = '';
+            
+            stopPlayback();
 
-        // Call Gemini for Script
-        async function generateScript(topic) {
-            const apiKey = getApiKey();
-            const prompt = `You are MoneyBot — a friendly, energetic financial literacy teacher for students.
+            try {
+                // 1. Script
+                logMsg(`Drafting script via Gemini 2.5 Pro...`, 5);
+                const slideCount = document.getElementById('slide-count').value;
+                const scriptPrompt = `You are MoneyBot — a friendly, energetic financial literacy teacher.
+Create a ${slideCount}-slide explainer lesson about: "${topic}"
 
-Create a 4-slide explainer lesson about: "${topic}"
-
-Return ONLY a valid JSON array of objects (no markdown, no code fences) with this exact structure:
+Return ONLY a valid JSON array of objects with exactly this structure:
 [
   {
-    "narration": "What MoneyBot says out loud for this slide (2-4 engaging sentences, conversational and student-friendly)",
+    "narration": "What MoneyBot says out loud for this slide (2-4 engaging sentences)",
+    "caption": "Short on-screen summary (max 10 words)",
     "imagePrompt": "Vivid description for an illustration: MoneyBot (friendly white/silver robot, neon green glowing eyes, coin-shaped antenna, enthusiastic pose) interacting with [scene related to slide content]. Bright, colorful, educational poster style."
   }
 ]`;
 
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-
-            if (!res.ok) throw new Error("Failed to generate script. Check your API key.");
-            const data = await res.json();
-            let text = data.candidates[0].content.parts[0].text;
-            
-            // Clean up possible markdown blocks
-            text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-            return JSON.parse(text);
-        }
-
-        // Call Gemini for Image
-        async function generateImage(prompt, slideNumber) {
-            const apiKey = getApiKey();
-            try {
-                const fullPrompt = `Create a vibrant, eye-catching educational poster illustration for slide ${slideNumber} of a financial literacy lesson.
-Scene: ${prompt}
-Style requirements:
-- Bright, bold colors with clean lines
-- Educational infographic style — clear and engaging
-- MoneyBot character if mentioned: friendly white/silver robot, neon green glowing eyes, coin-shaped antenna, enthusiastic pose
-- No text overlays, no watermarks, no logos
-- Suitable for students ages 12-18`;
-
-                // Use Imagen 4.0 Fast via predict endpoint
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${apiKey}`, {
+                const scriptRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        instances: [{ prompt: fullPrompt }],
-                        parameters: { sampleCount: 1 }
-                    })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: scriptPrompt }] }] })
                 });
+
+                if (!scriptRes.ok) throw new Error("Script generation failed. Check API key.");
+                const scriptData = await scriptRes.json();
+                const rawText = scriptData.candidates[0].content.parts[0].text;
+                const slides = JSON.parse(rawText.replace(/```json/g, '').replace(/```/g, '').trim());
                 
-                const data = await res.json();
-                if (data.predictions && data.predictions[0] && data.predictions[0].bytesBase64Encoded) {
-                    return `data:image/jpeg;base64,${data.predictions[0].bytesBase64Encoded}`;
-                } else {
-                    console.error("Imagen failed to return image:", data);
+                logMsg(`Script created (${slides.length} slides).`, 20);
+
+                // 2. Load TTS
+                if (!state.kokoro) {
+                    logMsg("Waking up Kokoro Neural TTS...", 25);
+                    state.kokoro = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0", { dtype: "q8", device: "wasm" });
                 }
-            } catch (e) {
-                console.error("Imagen API failed, falling back", e);
+
+                const newLesson = {
+                    id: Date.now(),
+                    title: topic.split('\n')[0].substring(0, 40) + '...',
+                    slides: []
+                };
+
+                const speed = parseFloat(document.getElementById('voice-speed').value);
+
+                // 3. Process slides in parallel for speed
+                logMsg("Generating Images (Imagen 4.0) & Voice (Kokoro)...", 30);
+                
+                const slidePromises = slides.map(async (slide, idx) => {
+                    // Voice
+                    const ttsOutput = await state.kokoro.generate(slide.narration, { voice: "af_bella" });
+                    const audioBlob = await ttsOutput.toBlob();
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    
+                    // Image
+                    let imgB64 = null;
+                    try {
+                        const imgRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                instances: [{ prompt: slide.imagePrompt }],
+                                parameters: { sampleCount: 1 }
+                            })
+                        });
+                        const imgData = await imgRes.json();
+                        if (imgData.predictions && imgData.predictions[0].bytesBase64Encoded) {
+                            imgB64 = `data:image/jpeg;base64,${imgData.predictions[0].bytesBase64Encoded}`;
+                        }
+                    } catch(e) { console.error("Image gen failed for slide", idx, e); }
+
+                    // Load Image object
+                    let imgObj = null;
+                    if (imgB64) {
+                        imgObj = new Image();
+                        imgObj.src = imgB64;
+                        await new Promise(r => imgObj.onload = r);
+                    }
+
+                    logMsg(`Completed slide ${idx + 1}/${slides.length}`, 30 + Math.floor(((idx+1)/slides.length)*60));
+
+                    return {
+                        ...slide,
+                        audioUrl,
+                        imgB64,
+                        imgObj
+                    };
+                });
+
+                newLesson.slides = await Promise.all(slidePromises);
+                
+                logMsg("Lesson ready!", 100);
+                state.currentLesson = newLesson;
+                
+                setupPlayerUI();
+                
+            } catch (err) {
+                logMsg(`Error: ${err.message}`);
+                alert("Generation failed. Check console.");
+            } finally {
+                state.isGenerating = false;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bolt"></i> Generate Explainer';
+                setTimeout(() => { document.getElementById('status-panel').style.display = 'none'; }, 3000);
             }
-            return null; // Fallback handled in canvas
+        };
+
+        // --- Canvas & Playback ---
+        let ctx;
+        let canvasW = 1280;
+        let canvasH = 720;
+        let animationFrame;
+        let currentSlideIdx = 0;
+        let strokes = [];
+
+        function initCanvas() {
+            const canvas = document.getElementById('video-canvas');
+            ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvasW, canvasH);
+            
+            // Draw placeholder
+            ctx.fillStyle = '#171717';
+            ctx.fillRect(0, 0, canvasW, canvasH);
+            ctx.fillStyle = '#262626';
+            ctx.font = '24px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText("MoneyBot Studio", canvasW/2, canvasH/2);
         }
 
-        // Load image to HTMLImageElement
-        function loadImage(src) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.crossOrigin = "Anonymous";
-                img.onload = () => resolve(img);
-                img.onerror = () => resolve(null);
-                img.src = src;
+        function setupPlayerUI() {
+            document.getElementById('play-overlay').style.display = 'flex';
+            document.getElementById('action-bar').style.display = 'flex';
+            
+            // Timeline
+            const tl = document.getElementById('timeline-container');
+            tl.style.display = 'flex';
+            tl.innerHTML = state.currentLesson.slides.map((s, i) => `
+                <div class="slide-thumb ${i===0?'active':''}" onclick="jumpToSlide(${i})" id="thumb-${i}">
+                    ${s.imgB64 ? `<img src="${s.imgB64}">` : '<div style="background:#262626;width:100%;height:100%;"></div>'}
+                </div>
+            `).join('');
+
+            // Reset canvas to first slide preview without animation
+            drawSlideStatic(0);
+        }
+
+        window.jumpToSlide = (idx) => {
+            if(!state.currentLesson) return;
+            stopPlayback();
+            currentSlideIdx = idx;
+            drawSlideStatic(idx);
+            
+            document.getElementById('play-overlay').style.display = 'flex';
+            updateThumbs();
+        }
+
+        function updateThumbs() {
+            document.querySelectorAll('.slide-thumb').forEach((el, i) => {
+                el.classList.toggle('active', i === currentSlideIdx);
             });
         }
 
-        async function startVideoGeneration() {
-            const apiKey = getApiKey();
-            if (!apiKey) {
-                document.getElementById('settings-modal').style.display = 'flex';
-                return;
+        function drawSlideStatic(idx) {
+            const slide = state.currentLesson.slides[idx];
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvasW, canvasH);
+            if (slide.imgObj) {
+                ctx.drawImage(slide.imgObj, 0, 0, canvasW, canvasH);
             }
+            showCaption(slide.caption, false);
+        }
 
-            const topic = document.getElementById('content-input').value.trim();
-            if (!topic) return alert('Please enter a topic!');
-
-            if (isGenerating) return;
-            isGenerating = true;
-
-            const btn = document.getElementById('generate-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Generating AI Video...';
-
-            document.getElementById('progress-container').style.display = 'block';
-            document.getElementById('video-section').style.display = 'none';
-
-            try {
-                updateProgress('Writing script with Gemini...', 10);
-                const slides = await generateScript(topic);
-                
-                const slideImages = [];
-                for (let i = 0; i < slides.length; i++) {
-                    updateProgress(`Generating AI Image ${i+1} of ${slides.length}...`, 20 + (i * 15));
-                    const b64 = await generateImage(slides[i].imagePrompt, i + 1);
-                    const imgNode = b64 ? await loadImage(b64) : null;
-                    slideImages.push(imgNode);
-                    
-                    // Generate audio for slide
-                    if (window.generateKokoroAudio) {
-                        slides[i].audioUrl = await window.generateKokoroAudio(slides[i].narration);
-                    }
-                }
-
-                updateProgress('Compositing video...', 85);
-                
-                // Record
-                await recordVideo(slides, slideImages, topic);
-
-                updateProgress('Complete!', 100);
-                document.getElementById('video-section').style.display = 'block';
-                showNotification('Video created successfully!');
-                
-            } catch (error) {
-                console.error(error);
-                alert('Error: ' + error.message);
-            } finally {
-                isGenerating = false;
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-film"></i> Generate Full AI Video';
-                setTimeout(() => { document.getElementById('progress-container').style.display = 'none'; }, 2000);
+        window.togglePlay = () => {
+            if(!state.currentLesson) return;
+            if(state.isPlaying) {
+                stopPlayback();
+            } else {
+                startPlayback();
             }
         }
 
-        async function recordVideo(slides, images, originalTopic) {
-            return new Promise(async (resolve) => {
-                const canvas = document.getElementById('recording-canvas');
-                const previewCanvas = document.getElementById('preview-canvas');
-                const ctx = canvas.getContext('2d');
-                const previewCtx = previewCanvas.getContext('2d');
+        function startPlayback() {
+            state.isPlaying = true;
+            document.getElementById('play-overlay').style.display = 'none';
+            document.getElementById('control-play-btn').innerHTML = '<i class="fas fa-pause"></i> Pause';
+            
+            if(currentSlideIdx >= state.currentLesson.slides.length) {
+                currentSlideIdx = 0;
+            }
+            playSlide(currentSlideIdx);
+        }
+
+        function stopPlayback() {
+            state.isPlaying = false;
+            cancelAnimationFrame(animationFrame);
+            state.audioElement.pause();
+            document.getElementById('control-play-btn').innerHTML = '<i class="fas fa-play"></i> Play';
+            document.getElementById('play-overlay').style.display = 'flex';
+        }
+
+        // Paintbrush algorithm
+        function buildPaintStrokes(w, h) {
+            const N = 10;
+            const overlap = 0.2;
+            const strokeDur = (1 + (N - 1) * overlap) / N;
+            const strokeW = (h / N) * 2.8;
+
+            const strokes = [];
+            for(let i=0; i<N; i++) {
+                const yBase = (i + 0.5) / N * h;
+                const goRight = i % 2 === 0;
+                const x0 = goRight ? -strokeW : w + strokeW;
+                const x3 = goRight ? w + strokeW : -strokeW;
                 
-                const stream = canvas.captureStream(30);
-                const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
-                const chunks = [];
+                strokes.push({
+                    p0: {x: x0, y: yBase},
+                    p1: {x: goRight ? w*0.3 : w*0.7, y: yBase + (Math.random()-0.5)*100},
+                    p2: {x: goRight ? w*0.7 : w*0.3, y: yBase + (Math.random()-0.5)*100},
+                    p3: {x: x3, y: yBase},
+                    width: strokeW,
+                    tStart: i * (strokeDur * (1 - overlap)),
+                    tEnd: i * (strokeDur * (1 - overlap)) + strokeDur
+                });
+            }
+            return strokes;
+        }
+
+        function bezierPt(a, b, c, d, t) {
+            const u = 1 - t;
+            return u*u*u*a + 3*u*u*t*b + 3*u*t*t*c + t*t*t*d;
+        }
+
+        function playSlide(idx) {
+            updateThumbs();
+            const slide = state.currentLesson.slides[idx];
+            
+            // Audio setup
+            state.audioElement.src = slide.audioUrl;
+            state.audioElement.playbackRate = parseFloat(document.getElementById('voice-speed').value);
+            
+            showCaption(slide.caption, true);
+
+            // Animation setup
+            strokes = buildPaintStrokes(canvasW, canvasH);
+            let startTime = null;
+            let duration = 0;
+
+            state.audioElement.onloadedmetadata = () => {
+                duration = (state.audioElement.duration * 1000) || 4000;
+                // Add a little buffer
+                duration += 500; 
+                state.audioElement.play().catch(e => console.error(e));
                 
-                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, canvasW, canvasH);
                 
-                let allFrames = [];
-                
-                mediaRecorder.onstop = () => {
-                    videoBlob = new Blob(chunks, { type: 'video/webm' });
-                    const url = URL.createObjectURL(videoBlob);
+                requestAnimationFrame(animateFrame);
+            };
+            
+            state.audioElement.onended = () => {
+                if(!state.isPlaying) return;
+                currentSlideIdx++;
+                if(currentSlideIdx < state.currentLesson.slides.length) {
+                    playSlide(currentSlideIdx);
+                } else {
+                    stopPlayback();
+                    document.getElementById('play-overlay').style.display = 'flex';
+                }
+            };
+
+            // Edge case if metadata is immediate
+            if(state.audioElement.readyState >= 1) {
+                state.audioElement.onloadedmetadata();
+            }
+
+            function animateFrame(now) {
+                if(!state.isPlaying) return;
+                if(!startTime) startTime = now;
+                const progress = Math.min((now - startTime) / duration, 1);
+
+                // Re-draw background
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, canvasW, canvasH);
+
+                if(slide.imgObj) {
+                    ctx.save();
+                    ctx.beginPath();
                     
-                    const videoRecord = {
-                        id: Date.now(),
-                        title: originalTopic.substring(0, 50) || 'AI Explainer Video',
-                        slides: slides,
-                        frames: allFrames,
-                        createdAt: new Date().toLocaleDateString(),
-                        videoData: url
-                    };
-                    
-                    currentVideoData = videoRecord;
-                    videos.unshift({ ...videoRecord, frames: [] }); // Don't save frames to localStorage
-                    localStorage.setItem('notebookVideos', JSON.stringify(videos));
-                    displayVideos();
-                    resolve();
-                };
-
-                mediaRecorder.start(100);
-
-                // Simulation of time: 4 seconds per slide (in reality, syncs to audio length, but client-side audio capture is tricky)
-                const framesPerSlide = 30 * 4; 
-                
-                for (let i = 0; i < slides.length; i++) {
-                    const slide = slides[i];
-                    const img = images[i];
-                    
-                    for (let f = 0; f < framesPerSlide; f++) {
-                        const progress = f / framesPerSlide;
-                        
-                        // Clear
-                        ctx.fillStyle = '#0f172a';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        
-                        // Draw image with Ken Burns pan/zoom effect
-                        if (img) {
-                            const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-                            const baseW = img.width * scale;
-                            const baseH = img.height * scale;
-                            // Zoom slowly from 1.05 to 1.0
-                            const zoom = 1.05 - (progress * 0.05); 
-                            const dw = baseW * zoom;
-                            const dh = baseH * zoom;
-                            const dx = (canvas.width - dw) / 2;
-                            const dy = (canvas.height - dh) / 2;
-                            
-                            ctx.drawImage(img, dx, dy, dw, dh);
-                        } else {
-                            // Fallback gradient if Gemini image generation failed
-                            const grad = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-                            grad.addColorStop(0, '#4c1d95');
-                            grad.addColorStop(1, '#1e1b4b');
-                            ctx.fillStyle = grad;
-                            ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        }
-
-                        // Bottom gradient for text readability
-                        const grad = ctx.createLinearGradient(0, canvas.height - 100, 0, canvas.height);
-                        grad.addColorStop(0, 'rgba(0,0,0,0)');
-                        grad.addColorStop(1, 'rgba(0,0,0,0.8)');
-                        ctx.fillStyle = grad;
-                        ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
-
-                        // Draw Captions
-                        ctx.fillStyle = 'white';
-                        ctx.font = '600 18px Inter, sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'bottom';
-                        
-                        // Word wrap
-                        const words = slide.narration.split(' ');
-                        let line = '';
-                        let lines = [];
-                        for (let word of words) {
-                            if (ctx.measureText(line + word + ' ').width > canvas.width - 40) {
-                                lines.push(line);
-                                line = word + ' ';
-                            } else {
-                                line += word + ' ';
+                    strokes.forEach(s => {
+                        if (progress > s.tStart) {
+                            const tLocal = Math.min(1, (progress - s.tStart) / (s.tEnd - s.tStart));
+                            // Draw thick stroke
+                            ctx.moveTo(s.p0.x, s.p0.y);
+                            for (let step = 0; step <= tLocal; step += 0.05) {
+                                const px = bezierPt(s.p0.x, s.p1.x, s.p2.x, s.p3.x, step);
+                                const py = bezierPt(s.p0.y, s.p1.y, s.p2.y, s.p3.y, step);
+                                ctx.lineTo(px, py);
+                                ctx.arc(px, py, s.width/2, 0, Math.PI*2);
                             }
                         }
-                        lines.push(line);
-                        
-                        lines.forEach((l, idx) => {
-                            ctx.fillText(l, canvas.width / 2, canvas.height - 20 - ((lines.length - 1 - idx) * 24));
-                        });
-
-                        // Copy to preview and save frame
-                        previewCtx.drawImage(canvas, 0, 0);
-                        if (f % 15 === 0) { // save 2 fps for later preview
-                            const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
-                            allFrames.push(dataUrl);
-                        }
-                        
-                        await new Promise(r => setTimeout(r, 1000/30));
-                    }
+                    });
+                    
+                    ctx.clip();
+                    ctx.drawImage(slide.imgObj, 0, 0, canvasW, canvasH);
+                    ctx.restore();
                 }
-                
-                mediaRecorder.stop();
-            });
+
+                if (progress < 1) {
+                    animationFrame = requestAnimationFrame(animateFrame);
+                } else {
+                    // Force final full draw
+                    if(slide.imgObj) ctx.drawImage(slide.imgObj, 0, 0, canvasW, canvasH);
+                }
+            }
         }
 
-        let playbackTimeout;
-        let slideIndex = 0;
-
-        function previewVideo() {
-            if (!currentVideoData) return;
+        function showCaption(text, typewrite) {
+            const bar = document.getElementById('caption-bar');
+            const p = document.getElementById('caption-text');
+            bar.classList.add('visible');
             
-            document.getElementById('preview-canvas').style.display = 'none';
-            document.getElementById('video-player').style.display = 'block';
-            document.getElementById('video-controls').style.display = 'none';
-            document.getElementById('play-controls').style.display = 'flex';
-            
-            slideIndex = 0;
-            playSlideChain();
+            if(typewrite) {
+                p.classList.add('typewriter');
+                p.innerText = '';
+                let i = 0;
+                const typeInterval = setInterval(() => {
+                    if(!state.isPlaying) { clearInterval(typeInterval); p.innerText = text; return; }
+                    p.innerText = text.slice(0, i+1);
+                    i++;
+                    if(i >= text.length) {
+                        clearInterval(typeInterval);
+                        p.classList.remove('typewriter');
+                    }
+                }, 40);
+            } else {
+                p.classList.remove('typewriter');
+                p.innerText = text;
+            }
         }
 
-        let currentAudio = null;
+        // --- Library & Saving ---
+        window.saveToLibrary = () => {
+            if(!state.currentLesson) return;
+            state.library.unshift(state.currentLesson);
+            localStorage.setItem('moneybot_library', JSON.stringify(state.library));
+            renderLibrary();
+            alert("Saved to library!");
+        };
 
-        function playSlideChain() {
-            if (slideIndex >= currentVideoData.slides.length) {
-                resetVideo();
+        function renderLibrary() {
+            const grid = document.getElementById('library-grid');
+            if(state.library.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-textMuted text-sm p-8 text-center border border-dashed border-border rounded-xl">No saved lessons yet.</div>';
                 return;
             }
 
-            isPlaying = true;
-            updatePlayBtn();
-            
-            const slide = currentVideoData.slides[slideIndex];
-            const speed = parseFloat(document.getElementById('speed').value);
-            
-            // Sync visual frames
-            const framesPerSlide = currentVideoData.frames.length / currentVideoData.slides.length;
-            const startFrame = Math.floor(slideIndex * framesPerSlide);
-            const videoElement = document.getElementById('video-player');
-            
-            // Set the video source to play the webm blob
-            if (slideIndex === 0) {
-                videoElement.src = currentVideoData.videoData;
-                videoElement.play();
-            }
-
-            if (slide.audioUrl) {
-                if (currentAudio) currentAudio.pause();
-                currentAudio = new Audio(slide.audioUrl);
-                currentAudio.playbackRate = speed;
-                currentAudio.onended = () => {
-                    slideIndex++;
-                    if (isPlaying) playSlideChain();
-                };
-                currentAudio.play();
-            } else {
-                // Fallback to Web Speech API
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(slide.narration);
-                utterance.rate = speed;
-                
-                const voices = window.speechSynthesis.getVoices();
-                const voice = voices.find(v => v.name.includes('Google US')) || voices.find(v => v.lang === 'en-US');
-                if (voice) utterance.voice = voice;
-
-                utterance.onend = () => {
-                    slideIndex++;
-                    if (isPlaying) playSlideChain();
-                };
-
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        function togglePlay() {
-            if (isPlaying) {
-                if (currentAudio) currentAudio.pause();
-                else window.speechSynthesis.pause();
-                document.getElementById('video-player').pause();
-                isPlaying = false;
-            } else {
-                if (currentAudio) currentAudio.play();
-                else window.speechSynthesis.resume();
-                document.getElementById('video-player').play();
-                isPlaying = true;
-            }
-            updatePlayBtn();
-        }
-
-        function updatePlayBtn() {
-            document.getElementById('play-pause-btn').innerHTML = isPlaying 
-                ? '<i class="fas fa-pause"></i> Pause' 
-                : '<i class="fas fa-play"></i> Play';
-        }
-
-        function resetVideo() {
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio = null;
-            }
-            window.speechSynthesis.cancel();
-            document.getElementById('video-player').pause();
-            isPlaying = false;
-            
-            document.getElementById('video-player').style.display = 'none';
-            document.getElementById('preview-canvas').style.display = 'block';
-            document.getElementById('video-controls').style.display = 'flex';
-            document.getElementById('play-controls').style.display = 'none';
-        }
-
-        function downloadVideo() {
-            if (!videoBlob) return;
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(videoBlob);
-            a.download = `AI-Explainer-${Date.now()}.webm`;
-            a.click();
-            showNotification('Video downloaded successfully!');
-        }
-
-        function displayVideos() {
-            const list = document.getElementById('videos-list');
-            if (videos.length === 0) {
-                document.getElementById('videos-section').style.display = 'none';
-                return;
-            }
-
-            document.getElementById('videos-section').style.display = 'block';
-            list.innerHTML = videos.map(video => `
-                <div class="card" style="padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-                    <div>
-                        <h4 style="font-size: 14px; font-weight: 600; color: #1e293b;">${video.title}</h4>
-                        <span style="font-size: 11px; color: #64748b;">${video.createdAt}</span>
+            grid.innerHTML = state.library.map((lesson, idx) => `
+                <div class="glass-panel overflow-hidden group cursor-pointer" onclick="loadFromLibrary(${idx})">
+                    <div class="aspect-video relative bg-black">
+                        ${lesson.slides[0]?.imgB64 ? `<img src="${lesson.slides[0].imgB64}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">` : ''}
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                            <i class="fas fa-play-circle text-4xl text-primary drop-shadow-md"></i>
+                        </div>
                     </div>
-                    <button onclick="deleteVideo(${video.id})" style="color: #ef4444; background: #fee2e2; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer;">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <div class="p-4 flex justify-between items-center">
+                        <div class="truncate font-semibold text-sm">${lesson.title}</div>
+                        <button onclick="event.stopPropagation(); deleteFromLibrary(${idx})" class="text-textMuted hover:text-red-400 p-2"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>
             `).join('');
         }
 
-        function deleteVideo(id) {
-            videos = videos.filter(v => v.id !== id);
-            localStorage.setItem('notebookVideos', JSON.stringify(videos));
-            displayVideos();
-        }
+        window.loadFromLibrary = async (idx) => {
+            const lesson = state.library[idx];
+            // Re-hydrate Image objects
+            for(let s of lesson.slides) {
+                if(s.imgB64 && !s.imgObj) {
+                    const img = new Image();
+                    img.src = s.imgB64;
+                    await new Promise(r => img.onload = r);
+                    s.imgObj = img;
+                }
+            }
+            state.currentLesson = lesson;
+            setupPlayerUI();
+            window.scrollTo({top:0, behavior: 'smooth'});
+        };
 
-        function clearAllVideos() {
-            videos = [];
-            localStorage.removeItem('notebookVideos');
-            displayVideos();
-        }
+        window.deleteFromLibrary = (idx) => {
+            if(!confirm("Delete this lesson?")) return;
+            state.library.splice(idx, 1);
+            localStorage.setItem('moneybot_library', JSON.stringify(state.library));
+            renderLibrary();
+        };
 
-        function showNotification(msg) {
-            alert(msg); // simple fallback
-        }
-        
-        // Load voices early
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-        }
+        window.downloadVideo = async () => {
+            alert("Video download requires background rendering. In this version, please use screen recording while playing to capture the high-quality animation and neural voice.");
+        };
+
     </script>
 </body>
 </html>
