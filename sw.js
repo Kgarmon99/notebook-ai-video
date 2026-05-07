@@ -1,4 +1,4 @@
-const CACHE_NAME = 'notebook-video-v4';
+const CACHE_NAME = 'notebook-video-v5';
 const urlsToCache = [
   '/notebook-ai-video/',
   '/notebook-ai-video/index.html'
